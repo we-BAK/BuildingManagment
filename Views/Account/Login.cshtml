@@ -1,0 +1,62 @@
+﻿@model BMS.Models.Auth.LoginViewModel
+
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="auth-card">
+    <h2>Sign In</h2>
+
+    <form asp-action="Login" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="FingerPrint" id="fingerprint-input" />
+        <input type="hidden" asp-for="TimeZone" id="timezone-input" />
+
+        <div class="form-group mb-3">
+            <label asp-for="Identity" class="form-label"></label>
+            <input asp-for="Identity" class="form-control" placeholder="Username or Email" autofocus />
+            <span asp-validation-for="Identity" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Log In</button>
+    </form>
+
+    <div class="mt-3 text-center">
+        <a asp-action="ForgotPassword">Forgot Password?</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Capture client time zone
+            try {
+                document.getElementById("timezone-input").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            } catch (e) {
+                document.getElementById("timezone-input").value = "UTC";
+            }
+
+            // Client browser fingerprint stub
+            const rawInfo = navigator.userAgent + screen.width + "x" + screen.height + new Date().getTimezoneOffset();
+            let hash = 0;
+            for (let i = 0; i < rawInfo.length; i++) {
+                hash = ((hash << 5) - hash) + rawInfo.charCodeAt(i);
+                hash |= 0;
+            }
+            document.getElementById("fingerprint-input").value = "FP-" + Math.abs(hash);
+        });
+    </script>
+}
