@@ -5,7 +5,7 @@
 }
 
 <div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-5">
+    <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm">
             <div class="card-body p-4">
                 <h3 class="card-title text-center mb-4">Create an Account</h3>
@@ -13,10 +13,22 @@
                 <form asp-action="Register" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                    <div class="form-group mb-3">
-                        <label asp-for="FullName" class="form-label">Full Name</label>
-                        <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="MiddleName" class="form-label">Middle Name</label>
+                            <input asp-for="MiddleName" class="form-control" placeholder="Middle Name" />
+                            <span asp-validation-for="MiddleName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
                     </div>
 
                     <div class="form-group mb-3">

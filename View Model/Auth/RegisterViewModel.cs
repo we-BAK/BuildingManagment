@@ -8,12 +8,14 @@ namespace BMS.Models.Auth
         [Display(Name = "First Name")]
         public string FirstName { get; set; } = string.Empty;
 
+        [Display(Name = "Middle Name")]
+        public string MiddleName { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Last Name is required.")]
         [Display(Name = "Last Name")]
         public string LastName { get; set; } = string.Empty;
 
-        // Computed property so model.FullName works without errors
-        public string FullName => $"{FirstName} {LastName}".Trim();
+        public string FullName => $"{FirstName} {MiddleName} {LastName}".Replace("  ", " ").Trim();
 
         [Required(ErrorMessage = "Username is required.")]
         public string UserName { get; set; } = string.Empty;

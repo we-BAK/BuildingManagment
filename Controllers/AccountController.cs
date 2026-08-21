@@ -184,6 +184,7 @@ namespace BMS.Controllers
             var newUser = new User
             {
                 FirstName = model.FirstName,
+                MiddleName = model.MiddleName ?? string.Empty, // Ensures NULL is never passed to SQL Server
                 LastName = model.LastName,
                 FullName = model.FullName,
                 UserName = model.UserName,
