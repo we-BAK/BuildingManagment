@@ -24,51 +24,7 @@ namespace BMS.Controllers
             _passwordHasher = passwordHasher;
         }
 
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View(new RegisterViewModel());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // 1. Check if username or email already exists
-            bool userExists = await _context.Users.AnyAsync(u =>
-                (u.UserName == model.UserName || u.Email == model.Email) && !u.IsDeleted);
-
-            if (userExists)
-            {
-                ModelState.AddModelError(string.Empty, "Username or Email address is already registered.");
-                return View(model);
-            }
-
-            // 2. Hash password using your custom PasswordHasher service
-            string hashedPassword = _passwordHasher.HashPassword(model.Password);
-
-            // 3. Instantiate and save the new User
-            var newUser = new User
-            {
-                UserName = model.UserName,
-                FullName = model.FullName,
-                Email = model.Email,
-                Password = hashedPassword,
-                IsActive = true,
-                IsDeleted = false,
-                CreatedDate = DateTime.UtcNow
-            };
-
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
-
-            // 4. Redirect to Login page upon successful creation
-            TempData["SuccessMessage"] = "Account created successfully! You can now log in.";
-            return RedirectToAction("Login");
-        }
+        #region Login
 
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
@@ -194,6 +150,73 @@ namespace BMS.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        #endregion
+
+        #region Register
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View(new RegisterViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // 1. Check if user already exists
+            bool userExists = await _context.Users.AnyAsync(u =>
+                (u.UserName == model.UserName || u.Email == model.Email) && !u.IsDeleted);
+
+            if (userExists)
+            {
+                ModelState.AddModelError(string.Empty, "Username or Email address is already registered.");
+                return View(model);
+            }
+
+            // 2. Hash password using custom PasswordHasher service
+            string hashedPassword = _passwordHasher.HashPassword(model.Password);
+
+            // 3. Instantiate and save the new User
+            var newUser = new User
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                FullName = model.FullName,
+                UserName = model.UserName,
+                Email = model.Email,
+                Password = hashedPassword,
+                IsActive = true,
+                IsDeleted = false,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Account created successfully! You can now log in.";
+            return RedirectToAction("Login");
+        }
+
+        #endregion
+
+        #region Logout
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
+        #endregion
+
+        #region Helpers
+
         private static (string Browser, string Platform) ParseUserAgent(string userAgent)
         {
             if (string.IsNullOrEmpty(userAgent)) return ("Unknown", "Unknown");
@@ -211,5 +234,7 @@ namespace BMS.Controllers
 
             return (browser, platform);
         }
+
+        #endregion
     }
 }
