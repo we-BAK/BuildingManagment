@@ -1,40 +1,95 @@
-﻿@model BMS.Models.Auth.LoginViewModel
+@model BMS.Models.Auth.LoginViewModel
 
 @{
     ViewData["Title"] = "Sign In";
 }
 
-<div class="auth-card">
-    <h2>Sign In</h2>
+<div class="auth-bg">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header Branding -->
+            <div class="auth-header">
+                <div class="auth-brand-logo">
+                    <i class="bi bi-building"></i>
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to access your Building Management System</p>
+            </div>
 
-    <form asp-action="Login" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <!-- Feedback Alert Banners -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="bms-alert bms-alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill bms-alert-icon"></i>
+                    <div>@TempData["SuccessMessage"]</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
 
-        <input type="hidden" asp-for="FingerPrint" id="fingerprint-input" />
-        <input type="hidden" asp-for="TimeZone" id="timezone-input" />
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bms-alert bms-alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill bms-alert-icon"></i>
+                    <div>@TempData["ErrorMessage"]</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
 
-        <div class="form-group mb-3">
-            <label asp-for="Identity" class="form-label"></label>
-            <input asp-for="Identity" class="form-control" placeholder="Username or Email" autofocus />
-            <span asp-validation-for="Identity" class="text-danger"></span>
+            <form asp-action="Login" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+                <div asp-validation-summary="ModelOnly" class="bms-alert bms-alert-danger" style="display: none;"></div>
+
+                <input type="hidden" asp-for="FingerPrint" id="fingerprint-input" />
+                <input type="hidden" asp-for="TimeZone" id="timezone-input" />
+
+                <!-- Identity Field -->
+                <div class="form-group-custom">
+                    <label asp-for="Identity" class="form-label-custom">Username or Email</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-person input-leading-icon"></i>
+                        <input asp-for="Identity" class="form-control" placeholder="Enter username or email" autofocus />
+                    </div>
+                    <span asp-validation-for="Identity" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label asp-for="Password" class="form-label-custom mb-0">Password</label>
+                        <a asp-action="ForgotPassword" class="auth-link">Forgot password?</a>
+                    </div>
+                    <div class="input-icon-group">
+                        <i class="bi bi-lock input-leading-icon"></i>
+                        <input asp-for="Password" class="form-control" type="password" id="login-password-input" placeholder="Enter your password" />
+                        <button type="button" class="btn-toggle-password" id="toggle-password-btn" title="Toggle password visibility">
+                            <i class="bi bi-eye" id="toggle-password-icon"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div class="form-check-custom mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" id="remember-me-check" />
+                    <label asp-for="RememberMe" class="form-check-label" for="remember-me-check">Stay logged in on this device</label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-bms-primary w-100 mb-3">
+                    <span>Sign In</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>Don't have an account?</span>
+            </div>
+
+            <div class="text-center">
+                <a asp-action="Register" asp-controller="Account" class="auth-link">
+                    Create a new account <i class="bi bi-chevron-right ms-1 small"></i>
+                </a>
+            </div>
         </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <div class="form-check mb-3">
-            <input asp-for="RememberMe" class="form-check-input" />
-            <label asp-for="RememberMe" class="form-check-label"></label>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">Log In</button>
-    </form>
-
-    <div class="mt-3 text-center">
-        <a asp-action="ForgotPassword">Forgot Password?</a>
     </div>
 </div>
 
@@ -42,11 +97,34 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Password toggle logic
+            const toggleBtn = document.getElementById("toggle-password-btn");
+            const passwordInput = document.getElementById("login-password-input");
+            const toggleIcon = document.getElementById("toggle-password-icon");
+
+            if (toggleBtn && passwordInput && toggleIcon) {
+                toggleBtn.addEventListener("click", function () {
+                    const isPassword = passwordInput.type === "password";
+                    passwordInput.type = isPassword ? "text" : "password";
+                    toggleIcon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+                });
+            }
+
+            // Show validation summary if errors exist
+            const valSummary = document.querySelector('[asp-validation-summary="ModelOnly"]');
+            if (valSummary && valSummary.children.length > 0 && valSummary.querySelector('li')) {
+                valSummary.style.display = 'flex';
+            }
+
             // Capture client time zone
             try {
-                document.getElementById("timezone-input").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const tzInput = document.getElementById("timezone-input");
+                if (tzInput) {
+                    tzInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                }
             } catch (e) {
-                document.getElementById("timezone-input").value = "UTC";
+                const tzInput = document.getElementById("timezone-input");
+                if (tzInput) tzInput.value = "UTC";
             }
 
             // Client browser fingerprint stub
@@ -56,7 +134,10 @@
                 hash = ((hash << 5) - hash) + rawInfo.charCodeAt(i);
                 hash |= 0;
             }
-            document.getElementById("fingerprint-input").value = "FP-" + Math.abs(hash);
+            const fpInput = document.getElementById("fingerprint-input");
+            if (fpInput) {
+                fpInput.value = "FP-" + Math.abs(hash);
+            }
         });
     </script>
 }

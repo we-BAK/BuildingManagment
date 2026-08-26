@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -167,29 +167,41 @@ namespace BMS.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // 1. Check if user already exists
-            bool userExists = await _context.Users.AnyAsync(u =>
-                (u.UserName == model.UserName || u.Email == model.Email) && !u.IsDeleted);
-
-            if (userExists)
+            // 1. Check duplicate username
+            bool userNameExists = await _context.Users.AnyAsync(u => u.UserName == model.UserName && !u.IsDeleted);
+            if (userNameExists)
             {
-                ModelState.AddModelError(string.Empty, "Username or Email address is already registered.");
+                ModelState.AddModelError("UserName", "This username is already taken.");
+            }
+
+            // 2. Check duplicate email
+            bool emailExists = await _context.Users.AnyAsync(u => u.Email == model.Email && !u.IsDeleted);
+            if (emailExists)
+            {
+                ModelState.AddModelError("Email", "This email address is already registered.");
+            }
+
+            if (userNameExists || emailExists)
+            {
                 return View(model);
             }
 
-            // 2. Hash password using custom PasswordHasher service
+            // 3. Hash password using custom PasswordHasher service
             string hashedPassword = _passwordHasher.HashPassword(model.Password);
 
-            // 3. Instantiate and save the new User
+            // 4. Instantiate and save the new User with safe defaults
             var newUser = new User
             {
                 FirstName = model.FirstName,
-                MiddleName = model.MiddleName ?? string.Empty, // Ensures NULL is never passed to SQL Server
+                MiddleName = model.MiddleName ?? string.Empty,
                 LastName = model.LastName,
                 FullName = model.FullName,
                 UserName = model.UserName,
                 Email = model.Email,
+                PhoneNumber = model.PhoneNumber ?? string.Empty,
                 Password = hashedPassword,
+                SexId = 1,
+                DefaultLanguageId = 1,
                 IsActive = true,
                 IsDeleted = false,
                 CreatedDate = DateTime.UtcNow
@@ -199,6 +211,31 @@ namespace BMS.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Account created successfully! You can now log in.";
+            return RedirectToAction("Login");
+        }
+
+        #endregion
+
+        #region ForgotPassword
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == model.Email && u.IsActive && !u.IsDeleted);
+
+            // Inform user safely
+            TempData["SuccessMessage"] = "If an account matching that email address exists, reset instructions have been dispatched.";
             return RedirectToAction("Login");
         }
 

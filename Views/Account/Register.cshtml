@@ -1,69 +1,158 @@
-﻿@model BMS.Models.Auth.RegisterViewModel
+@model BMS.Models.Auth.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
-
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4">Create an Account</h3>
-
-                <form asp-action="Register" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label asp-for="FirstName" class="form-label">First Name</label>
-                            <input asp-for="FirstName" class="form-control" placeholder="First Name" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="MiddleName" class="form-label">Middle Name</label>
-                            <input asp-for="MiddleName" class="form-control" placeholder="Middle Name" />
-                            <span asp-validation-for="MiddleName" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="LastName" class="form-label">Last Name</label>
-                            <input asp-for="LastName" class="form-control" placeholder="Last Name" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="UserName" class="form-label">Username</label>
-                        <input asp-for="UserName" class="form-control" placeholder="Choose a username" />
-                        <span asp-validation-for="UserName" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
-                        <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="Password" class="form-label">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    </div>
-
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary">Register</button>
-                    </div>
-                </form>
-
-                <div class="text-center mt-3">
-                    <span>Already have an account? </span>
-                    <a asp-action="Login" asp-controller="Account">Sign In</a>
+<div class="auth-bg">
+    <div class="auth-container auth-container-lg">
+        <div class="auth-card">
+            <!-- Header Branding -->
+            <div class="auth-header">
+                <div class="auth-brand-logo">
+                    <i class="bi bi-person-plus"></i>
                 </div>
+                <h2>Create Your Account</h2>
+                <p>Join Building Management System to manage properties and access services</p>
+            </div>
+
+            <!-- Feedback Alert Banners -->
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bms-alert bms-alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill bms-alert-icon"></i>
+                    <div>@TempData["ErrorMessage"]</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Register" method="post" id="register-form">
+                <div asp-validation-summary="ModelOnly" class="bms-alert bms-alert-danger" style="display: none;"></div>
+
+                <!-- Name Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="FirstName" class="form-label-custom">First Name <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-person input-leading-icon"></i>
+                                <input asp-for="FirstName" class="form-control" placeholder="First Name" autofocus />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="MiddleName" class="form-label-custom">Middle Name <span class="text-muted fw-normal">(Optional)</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-person input-leading-icon"></i>
+                                <input asp-for="MiddleName" class="form-control" placeholder="Middle Name" />
+                            </div>
+                            <span asp-validation-for="MiddleName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="LastName" class="form-label-custom">Last Name <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-person input-leading-icon"></i>
+                                <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Username & Email Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="UserName" class="form-label-custom">Username <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-at input-leading-icon"></i>
+                                <input asp-for="UserName" class="form-control" placeholder="Choose a unique username" />
+                            </div>
+                            <span asp-validation-for="UserName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="Email" class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-envelope input-leading-icon"></i>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Field -->
+                <div class="form-group-custom">
+                    <label asp-for="PhoneNumber" class="form-label-custom">Phone Number <span class="text-muted fw-normal">(Optional)</span></label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-telephone input-leading-icon"></i>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 000-0000" />
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- Passwords Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="Password" class="form-label-custom">Password <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-lock input-leading-icon"></i>
+                                <input asp-for="Password" type="password" class="form-control" id="reg-password-input" placeholder="At least 6 characters" />
+                                <button type="button" class="btn-toggle-password" id="toggle-reg-pass-btn" title="Toggle password visibility">
+                                    <i class="bi bi-eye" id="toggle-reg-pass-icon"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+
+                            <!-- Password Strength Indicator Bar -->
+                            <div class="password-strength-container mt-2">
+                                <div class="password-strength-bar">
+                                    <div class="password-strength-progress" id="strength-progress"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="password-strength-text" id="strength-label">Password strength</span>
+                                    <span class="password-strength-text" id="strength-percentage"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-custom mb-0">
+                            <label asp-for="ConfirmPassword" class="form-label-custom">Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-shield-check input-leading-icon"></i>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" id="reg-confirm-input" placeholder="Re-enter password" />
+                                <button type="button" class="btn-toggle-password" id="toggle-confirm-pass-btn" title="Toggle confirm password visibility">
+                                    <i class="bi bi-eye" id="toggle-confirm-pass-icon"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                            <div id="match-feedback" class="small mt-1 font-weight-bold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-bms-primary w-100 my-3">
+                    <i class="bi bi-person-check me-1"></i>
+                    <span>Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+            <div class="text-center">
+                <a asp-action="Login" asp-controller="Account" class="auth-link">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Sign In
+                </a>
             </div>
         </div>
     </div>
@@ -71,4 +160,109 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Password toggle 1
+            const toggleRegPassBtn = document.getElementById("toggle-reg-pass-btn");
+            const regPasswordInput = document.getElementById("reg-password-input");
+            const toggleRegPassIcon = document.getElementById("toggle-reg-pass-icon");
+
+            if (toggleRegPassBtn && regPasswordInput && toggleRegPassIcon) {
+                toggleRegPassBtn.addEventListener("click", function () {
+                    const isPassword = regPasswordInput.type === "password";
+                    regPasswordInput.type = isPassword ? "text" : "password";
+                    toggleRegPassIcon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+                });
+            }
+
+            // Password toggle 2
+            const toggleConfirmPassBtn = document.getElementById("toggle-confirm-pass-btn");
+            const regConfirmInput = document.getElementById("reg-confirm-input");
+            const toggleConfirmPassIcon = document.getElementById("toggle-confirm-pass-icon");
+
+            if (toggleConfirmPassBtn && regConfirmInput && toggleConfirmPassIcon) {
+                toggleConfirmPassBtn.addEventListener("click", function () {
+                    const isPassword = regConfirmInput.type === "password";
+                    regConfirmInput.type = isPassword ? "text" : "password";
+                    toggleConfirmPassIcon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+                });
+            }
+
+            // Live Password Strength Meter
+            const strengthProgress = document.getElementById("strength-progress");
+            const strengthLabel = document.getElementById("strength-label");
+            const strengthPercentage = document.getElementById("strength-percentage");
+
+            if (regPasswordInput && strengthProgress && strengthLabel) {
+                regPasswordInput.addEventListener("input", function () {
+                    const val = regPasswordInput.value;
+                    let score = 0;
+
+                    if (!val) {
+                        strengthProgress.style.width = "0%";
+                        strengthProgress.style.backgroundColor = "#e2e8f0";
+                        strengthLabel.textContent = "Password strength";
+                        strengthPercentage.textContent = "";
+                        return;
+                    }
+
+                    if (val.length >= 6) score += 25;
+                    if (val.length >= 10) score += 15;
+                    if (/[A-Z]/.test(val)) score += 20;
+                    if (/[0-9]/.test(val)) score += 20;
+                    if (/[^A-Za-z0-9]/.test(val)) score += 20;
+
+                    strengthProgress.style.width = score + "%";
+                    strengthPercentage.textContent = score + "%";
+
+                    if (score <= 35) {
+                        strengthProgress.style.backgroundColor = "#ef4444";
+                        strengthLabel.textContent = "Weak password";
+                        strengthLabel.style.color = "#ef4444";
+                    } else if (score <= 70) {
+                        strengthProgress.style.backgroundColor = "#f59e0b";
+                        strengthLabel.textContent = "Moderate password";
+                        strengthLabel.style.color = "#d97706";
+                    } else {
+                        strengthProgress.style.backgroundColor = "#10b981";
+                        strengthLabel.textContent = "Strong password";
+                        strengthLabel.style.color = "#10b981";
+                    }
+
+                    checkPasswordMatch();
+                });
+            }
+
+            // Confirm Password Live Match Check
+            const matchFeedback = document.getElementById("match-feedback");
+            function checkPasswordMatch() {
+                if (!regConfirmInput || !regPasswordInput || !matchFeedback) return;
+                const pass = regPasswordInput.value;
+                const confirm = regConfirmInput.value;
+
+                if (!confirm) {
+                    matchFeedback.textContent = "";
+                    return;
+                }
+
+                if (pass === confirm) {
+                    matchFeedback.textContent = "✓ Passwords match";
+                    matchFeedback.style.color = "#10b981";
+                } else {
+                    matchFeedback.textContent = "✕ Passwords do not match";
+                    matchFeedback.style.color = "#ef4444";
+                }
+            }
+
+            if (regConfirmInput) {
+                regConfirmInput.addEventListener("input", checkPasswordMatch);
+            }
+
+            // ModelOnly validation summary show/hide
+            const valSummary = document.querySelector('[asp-validation-summary="ModelOnly"]');
+            if (valSummary && valSummary.children.length > 0 && valSummary.querySelector('li')) {
+                valSummary.style.display = 'flex';
+            }
+        });
+    </script>
 }
