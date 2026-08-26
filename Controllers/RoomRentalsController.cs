@@ -55,8 +55,8 @@ namespace BMS.Controllers
                 RoomId = model.RoomId,
                 TenantId = model.TenantId,
                 StartDate = model.StartDate,
-                TotalPrice = (double)model.MonthlyRent, // Maps to TotalPrice double
-                BusinessAreaId = model.BusinessAreaId, // Uses BusinessArea FK
+                TotalPrice = (double)model.MonthlyRent,
+                BusinessAreaId = model.BusinessAreaId,
                 IsActive = model.IsActive,
                 IsDeleted = false
             };
@@ -149,6 +149,7 @@ namespace BMS.Controllers
                 .Select(r => new { Id = r.Id, Name = $"{r.Floor.Building.Name} - {r.Name}" })
                 .ToListAsync(), "Id", "Name", selectedRoomId);
 
+            // Accesses t.Name directly from your Tenant entity
             ViewBag.Tenants = new SelectList(await _context.Tenants
                 .Where(t => !t.IsDeleted)
                 .Select(t => new { Id = t.Id, Name = t.Name })
