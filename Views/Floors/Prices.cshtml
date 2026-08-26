@@ -1,0 +1,91 @@
+@model BMS.Models.ViewModels.FloorPriceViewModel
+
+@{
+    ViewData["Title"] = $"Floor Base Pricing: {Model.FloorName}";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Floor Base Pricing & Service Rates</h1>
+        <p class="page-header-subtitle">Manage baseline pricing models for <strong>@Model.FloorName</strong> (@Model.BuildingName)</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Floors
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-currency-dollar me-2 text-success"></i> Set Floor Base Price</h5>
+            </div>
+            <div class="bms-card-body">
+                <form asp-action="SavePrice" method="post">
+                    <input type="hidden" asp-for="FloorId" />
+
+                    <div class="form-group-custom">
+                        <label asp-for="BasePrice" class="form-label-custom">Base Monthly Rate ($) <span class="text-danger">*</span></label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-cash input-leading-icon"></i>
+                            <input asp-for="BasePrice" type="number" step="0.01" class="form-control" placeholder="1500.00" autofocus />
+                        </div>
+                        <span asp-validation-for="BasePrice" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-bms-primary w-100 mt-3">
+                        <i class="bi bi-check-lg me-1"></i> Save Pricing Plan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-clock-history me-2 text-info"></i> Pricing History</h5>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Price ID</th>
+                                <th>Monthly Base Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.ExistingPrices.Any())
+                            {
+                                <tr><td colspan="3" class="text-center py-4 text-muted">No floor pricing history configured yet.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.ExistingPrices)
+                                {
+                                    <tr>
+                                        <td>#FP-@p.Id</td>
+                                        <td class="fw-bold text-success fs-6">$@p.Price.ToString("N2")</td>
+                                        <td><span class="badge-status badge-status-active">Active</span></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

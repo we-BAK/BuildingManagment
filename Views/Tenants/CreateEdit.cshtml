@@ -1,0 +1,122 @@
+@model BMS.Models.ViewModels.TenantFormViewModel
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Tenant" : "Register Tenant";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">@(isEdit ? "Edit Tenant Profile" : "Register New Tenant")</h1>
+                <p class="page-header-subtitle">Capture tenant contact information, national identity verification, and company details</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Tenants
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Name Row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="FirstName" class="form-label-custom">First Name <span class="text-danger">*</span></label>
+                                <input asp-for="FirstName" class="form-control" placeholder="First Name" autofocus style="height: 48px; border-radius: 10px;" />
+                                <span asp-validation-for="FirstName" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="MiddleName" class="form-label-custom">Middle Name</label>
+                                <input asp-for="MiddleName" class="form-control" placeholder="Middle Name" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="LastName" class="form-label-custom">Last Name <span class="text-danger">*</span></label>
+                                <input asp-for="LastName" class="form-control" placeholder="Last Name" style="height: 48px; border-radius: 10px;" />
+                                <span asp-validation-for="LastName" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ID & Company Row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="IdentityCardNumber" class="form-label-custom">National ID / Passport Number <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-card-heading input-leading-icon"></i>
+                                    <input asp-for="IdentityCardNumber" class="form-control" placeholder="e.g. ID-987654321" />
+                                </div>
+                                <span asp-validation-for="IdentityCardNumber" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="CompanyName" class="form-label-custom">Company / Organization</label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-briefcase input-leading-icon"></i>
+                                    <input asp-for="CompanyName" class="form-control" placeholder="e.g. TechCorp LLC" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info Row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Email" class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-envelope input-leading-icon"></i>
+                                    <input asp-for="Email" type="email" class="form-control" placeholder="tenant@example.com" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Phone" class="form-label-custom">Phone Number <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-telephone input-leading-icon"></i>
+                                    <input asp-for="Phone" class="form-control" placeholder="+1 (555) 000-0000" />
+                                </div>
+                                <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check-custom my-3">
+                        <input asp-for="IsActive" class="form-check-input" id="tnt-active-check" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="tnt-active-check">Active Tenant Listing</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> @(isEdit ? "Update Profile" : "Register Tenant")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,91 @@
+@model BMS.Models.ViewModels.RoomPriceViewModel
+
+@{
+    ViewData["Title"] = $"Rent Pricing: Room {Model.RoomNumber}";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Room Rent Rates & Deposit Plans</h1>
+        <p class="page-header-subtitle">Configure monthly rental rate and deposit requirements for <strong>Room @Model.RoomNumber</strong></p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Rooms
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-currency-dollar me-2 text-success"></i> Update Room Rent Rate</h5>
+            </div>
+            <div class="bms-card-body">
+                <form asp-action="SavePrice" method="post">
+                    <input type="hidden" asp-for="RoomId" />
+
+                    <div class="form-group-custom">
+                        <label asp-for="Price" class="form-label-custom">Monthly Rent Price ($) <span class="text-danger">*</span></label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-cash input-leading-icon"></i>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="1250.00" autofocus />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-bms-primary w-100 mt-3">
+                        <i class="bi bi-check-lg me-1"></i> Save Rent Rate
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-clock-history me-2 text-info"></i> Rent Price Rate History</h5>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Price ID</th>
+                                <th>Monthly Rent Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.PriceHistory.Any())
+                            {
+                                <tr><td colspan="3" class="text-center py-4 text-muted">No rent pricing history configured for this room yet.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.PriceHistory)
+                                {
+                                    <tr>
+                                        <td>#RP-@p.Id</td>
+                                        <td class="fw-bold text-success fs-6">$@p.Price.ToString("N2")</td>
+                                        <td><span class="badge-status badge-status-active">Active</span></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

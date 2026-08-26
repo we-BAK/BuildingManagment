@@ -1,0 +1,94 @@
+@model IEnumerable<BMS.Models.Room>
+
+@{
+    ViewData["Title"] = "Rooms & Apartments Directory";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Rooms & Apartments Directory</h1>
+        <p class="page-header-subtitle">View and manage all residential units, apartments, bedrooms, and room statuses</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-bms-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Create Room Unit
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="bms-card">
+    <div class="bms-card-body p-0">
+        <div class="table-responsive">
+            <table class="bms-table">
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Building Asset</th>
+                        <th>Floor Level</th>
+                        <th>Bedrooms / Bathrooms</th>
+                        <th>Unit Size</th>
+                        <th>Monthly Rent</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center py-4 text-muted">No rooms created yet. Click "Create Room Unit" to add one.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model)
+                        {
+                            var latestPrice = r.RoomPrices.FirstOrDefault(p => !p.IsDeleted);
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark fs-6">Room @r.RoomNumber</div>
+                                    <small class="text-muted">ID: #RM-@r.Id</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>@(r.Building?.Name ?? "N/A")</span></td>
+                                <td>@(r.Floor?.Name ?? "General Floor")</td>
+                                <td>@r.Bedrooms Beds / @r.Bathrooms Baths</td>
+                                <td>@r.Size sq ft</td>
+                                <td>
+                                    @if (latestPrice != null)
+                                    {
+                                        <span class="fw-bold text-success">$@latestPrice.Price.ToString("N2")/mo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not set</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var statusName = r.RoomStatue?.Name ?? "Vacant";
+                                        var statusClass = statusName.ToLower().Contains("occup") ? "badge-status-occupied" :
+                                                          statusName.ToLower().Contains("maint") ? "badge-status-maintenance" : "badge-status-vacant";
+                                    }
+                                    <span class="badge-status @statusClass">@statusName</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@r.Id" class="btn btn-outline-primary" title="Room Details"><i class="bi bi-eye"></i> Details</a>
+                                        <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-outline-secondary" title="Edit Room"><i class="bi bi-pencil"></i></a>
+                                        <a asp-action="Prices" asp-route-id="@r.Id" class="btn btn-outline-success" title="Manage Room Rent Rates"><i class="bi bi-currency-dollar"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

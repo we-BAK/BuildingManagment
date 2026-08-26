@@ -1,0 +1,75 @@
+@model BMS.Models.ViewModels.FloorFormViewModel
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Floor" : "Create Floor";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">@(isEdit ? "Edit Floor Details" : "Add New Floor")</h1>
+                <p class="page-header-subtitle">Assign floor number and associate floor level with a building asset</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Floors
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group-custom">
+                        <label asp-for="BuildingId" class="form-label-custom">Building Asset <span class="text-danger">*</span></label>
+                        <select asp-for="BuildingId" asp-items="ViewBag.Buildings" class="form-select" style="height: 48px; border-radius: 10px;">
+                            <option value="">-- Select Building --</option>
+                        </select>
+                        <span asp-validation-for="BuildingId" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-7">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Name" class="form-label-custom">Floor Display Name / Title <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" placeholder="e.g. 2nd Floor (Executive Level)" autofocus style="height: 48px; border-radius: 10px;" />
+                                <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="FloorNumber" class="form-label-custom">Floor Level Number</label>
+                                <input asp-for="FloorNumber" type="number" class="form-control" placeholder="e.g. 2" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check-custom my-3">
+                        <input asp-for="IsActive" class="form-check-input" id="flr-active-check" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="flr-active-check">Active Floor Level</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> @(isEdit ? "Update Floor" : "Save Floor")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

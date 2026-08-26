@@ -1,0 +1,117 @@
+@model BMS.Models.ViewModels.ShopFormViewModel
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Shop" : "Create Shop";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">@(isEdit ? "Edit Shop Space Details" : "Register New Commercial Shop")</h1>
+                <p class="page-header-subtitle">Specify shop number, frontage facade type, retail square footage, and lease pricing</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Shops
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="BuildingId" class="form-label-custom">Building Asset <span class="text-danger">*</span></label>
+                                <select asp-for="BuildingId" asp-items="ViewBag.Buildings" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Building --</option>
+                                </select>
+                                <span asp-validation-for="BuildingId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="FloorId" class="form-label-custom">Floor Level</label>
+                                <select asp-for="FloorId" asp-items="ViewBag.Floors" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Floor --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="ShopNumber" class="form-label-custom">Shop Number / Code <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-shop input-leading-icon"></i>
+                                    <input asp-for="ShopNumber" class="form-control" placeholder="e.g. Retail-101" autofocus />
+                                </div>
+                                <span asp-validation-for="ShopNumber" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="ShopStatusId" class="form-label-custom">Shop Status <span class="text-danger">*</span></label>
+                                <select asp-for="ShopStatusId" asp-items="ViewBag.Statuses" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Status --</option>
+                                </select>
+                                <span asp-validation-for="ShopStatusId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="FacadeType" class="form-label-custom">Facade / Frontage</label>
+                                <input asp-for="FacadeType" class="form-control" placeholder="e.g. Glass Window Front" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Size" class="form-label-custom">Retail Area (Sq Ft)</label>
+                                <input asp-for="Size" type="number" step="0.1" class="form-control" placeholder="1200.0" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Price" class="form-label-custom">Monthly Lease Price ($)</label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-cash input-leading-icon"></i>
+                                    <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="2500.00" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check-custom my-3">
+                        <input asp-for="IsActive" class="form-check-input" id="shp-active-check" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="shp-active-check">Active Shop Listing</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> @(isEdit ? "Update Shop" : "Save Shop")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

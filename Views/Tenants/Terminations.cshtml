@@ -1,0 +1,90 @@
+@model IEnumerable<BMS.Models.RentalAgreementTermination>
+
+@{
+    ViewData["Title"] = "Rental Agreement Terminations";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Rental Agreement Terminations</h1>
+        <p class="page-header-subtitle">Manage requests and process official endings of lease agreements</p>
+    </div>
+    <div>
+        <a asp-action="RequestTermination" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-x-circle me-1"></i> Submit Early Termination
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="bms-card">
+    <div class="bms-card-body p-0">
+        <div class="table-responsive">
+            <table class="bms-table">
+                <thead>
+                    <tr>
+                        <th>Termination ID</th>
+                        <th>Tenant</th>
+                        <th>Property Unit</th>
+                        <th>Requested Date</th>
+                        <th>Reason for Ending</th>
+                        <th>Status</th>
+                        <th class="text-end">Approval Workflow</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No termination requests recorded.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var t in Model)
+                        {
+                            <tr>
+                                <td>#TERM-@t.Id</td>
+                                <td><span class="fw-bold">@(t.RentalAgreement?.Tenant?.FirstName + " " + t.RentalAgreement?.Tenant?.LastName)</span></td>
+                                <td><span class="badge bg-light text-dark border">Room @(t.RentalAgreement?.Room?.RoomNumber ?? "N/A")</span></td>
+                                <td>@t.TerminationDate.ToString("MMM dd, yyyy")</td>
+                                <td>@(t.Reason ?? "N/A")</td>
+                                <td>
+                                    @if (t.StatusId == 2)
+                                    {
+                                        <span class="badge-status badge-status-approved">Approved & Vacated</span>
+                                    }
+                                    else if (t.StatusId == 3)
+                                    {
+                                        <span class="badge-status badge-status-declined">Declined</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-status-pending">Pending Staff Review</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (t.StatusId == 1)
+                                    {
+                                        <a asp-action="TerminationApproval" asp-route-id="@t.Id" class="btn btn-primary btn-sm px-3 rounded-2">
+                                            Review Approval
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Completed</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+@model BMS.Models.ViewModels.TerminationRequestViewModel
+
+@{
+    ViewData["Title"] = "Request Early Lease Termination";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">Request Lease Termination</h1>
+                <p class="page-header-subtitle">Submit formal request for early cancellation or contract end</p>
+            </div>
+            <div>
+                <a asp-action="Terminations" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Terminations
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="RequestTermination" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group-custom">
+                        <label asp-for="RoomRentalId" class="form-label-custom">Select Active Lease Contract <span class="text-danger">*</span></label>
+                        <select asp-for="RoomRentalId" class="form-select" style="height: 48px; border-radius: 10px;" autofocus>
+                            <option value="">-- Select Active Lease --</option>
+                            @if (ViewBag.ActiveRentals != null)
+                            {
+                                @foreach (var r in (IEnumerable<BMS.Models.RoomRental>)ViewBag.ActiveRentals)
+                                {
+                                    <option value="@r.Id">Room @(r.Room?.RoomNumber) - @(r.Tenant?.FirstName) @(r.Tenant?.LastName)</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="RoomRentalId" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label asp-for="RequestedTerminationDate" class="form-label-custom">Requested Termination Date <span class="text-danger">*</span></label>
+                        <input asp-for="RequestedTerminationDate" type="date" class="form-control" style="height: 48px; border-radius: 10px;" />
+                        <span asp-validation-for="RequestedTerminationDate" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label asp-for="Reason" class="form-label-custom">Reason for Early Termination <span class="text-danger">*</span></label>
+                        <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Explain the reason for contract cancellation..."></textarea>
+                        <span asp-validation-for="Reason" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Terminations" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-send me-1"></i> Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

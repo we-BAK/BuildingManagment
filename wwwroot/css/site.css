@@ -42,6 +42,179 @@ main {
     flex: 1;
 }
 
+/* Page Header */
+.page-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bms-border);
+}
+
+.page-header-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--bms-dark);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.25rem;
+}
+
+.page-header-subtitle {
+    color: var(--bms-text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Stat Cards (Dashboard & Summary Widgets) */
+.stat-card {
+    background: var(--bms-surface);
+    border: 1px solid var(--bms-border);
+    border-radius: var(--bms-radius);
+    padding: 1.35rem 1.5rem;
+    box-shadow: var(--bms-shadow);
+    transition: var(--bms-transition);
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -5px rgba(15, 23, 42, 0.1);
+}
+
+.stat-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card-icon.indigo { background-color: rgba(79, 70, 229, 0.12); color: #4f46e5; }
+.stat-card-icon.cyan { background-color: rgba(6, 182, 212, 0.12); color: #0891b2; }
+.stat-card-icon.emerald { background-color: rgba(16, 185, 129, 0.12); color: #059669; }
+.stat-card-icon.amber { background-color: rgba(245, 158, 11, 0.12); color: #d97706; }
+.stat-card-icon.rose { background-color: rgba(244, 63, 94, 0.12); color: #e11d48; }
+
+.stat-card-value {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--bms-dark);
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--bms-text-muted);
+}
+
+/* BMS Cards & Containers */
+.bms-card {
+    background: #ffffff;
+    border: 1px solid var(--bms-border);
+    border-radius: var(--bms-radius);
+    box-shadow: var(--bms-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.bms-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--bms-border);
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bms-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bms-dark);
+    margin: 0;
+}
+
+.bms-card-body {
+    padding: 1.5rem;
+}
+
+/* Status Badges */
+.badge-status {
+    padding: 0.35em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.badge-status-active, .badge-status-vacant, .badge-status-approved {
+    background-color: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-status-pending {
+    background-color: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.badge-status-occupied, .badge-status-declined, .badge-status-terminated {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.badge-status-maintenance {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+/* Data Tables */
+.bms-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.bms-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.85rem 1.15rem;
+    border-bottom: 1px solid var(--bms-border);
+}
+
+.bms-table td {
+    padding: 1rem 1.15rem;
+    vertical-align: middle;
+    color: var(--bms-text-main);
+    font-size: 0.925rem;
+    border-bottom: 1px solid var(--bms-border);
+}
+
+.bms-table tbody tr {
+    transition: var(--bms-transition);
+}
+
+.bms-table tbody tr:hover {
+    background-color: rgba(248, 250, 252, 0.8);
+}
+
 /* Auth Section Page Background Mesh */
 .auth-bg {
     min-height: calc(100vh - 120px);
@@ -76,11 +249,6 @@ main {
     transition: var(--bms-transition);
 }
 
-.auth-card:hover {
-    box-shadow: 0 25px 30px -5px rgba(15, 23, 42, 0.12), 0 10px 12px -5px rgba(15, 23, 42, 0.06);
-}
-
-/* Header & Brand Branding */
 .auth-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -99,24 +267,14 @@ main {
     border-radius: 14px;
     margin-bottom: 1rem;
     box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
-    letter-spacing: -0.5px;
 }
 
 .auth-header h2 {
     font-weight: 700;
     font-size: 1.75rem;
-    letter-spacing: -0.025em;
     color: var(--bms-dark);
-    margin-bottom: 0.35rem;
 }
 
-.auth-header p {
-    color: var(--bms-text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 0;
-}
-
-/* Custom Input Groups & Icon Styling */
 .form-group-custom {
     margin-bottom: 1.25rem;
 }
@@ -141,7 +299,6 @@ main {
     color: #94a3b8;
     font-size: 1.1rem;
     pointer-events: none;
-    transition: var(--bms-transition);
     z-index: 5;
 }
 
@@ -152,22 +309,8 @@ main {
     border-radius: var(--bms-radius-sm);
     border: 1.5px solid var(--bms-border);
     font-size: 0.95rem;
-    background-color: #ffffff;
-    transition: var(--bms-transition);
 }
 
-.input-icon-group .form-control:focus {
-    border-color: var(--bms-primary);
-    box-shadow: 0 0 0 4px var(--bms-primary-light);
-    background-color: #ffffff;
-}
-
-.input-icon-group .form-control:focus + i.input-leading-icon,
-.input-icon-group:focus-within i.input-leading-icon {
-    color: var(--bms-primary);
-}
-
-/* Password Toggle Button */
 .btn-toggle-password {
     position: absolute;
     right: 0.75rem;
@@ -177,57 +320,17 @@ main {
     padding: 0.5rem;
     cursor: pointer;
     font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    transition: var(--bms-transition);
     z-index: 5;
 }
 
-.btn-toggle-password:hover {
-    color: var(--bms-primary);
-    background-color: rgba(241, 245, 249, 0.8);
-}
-
-/* Custom Checkbox */
-.form-check-custom {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-check-custom .form-check-input {
-    width: 1.15rem;
-    height: 1.15rem;
-    border-radius: 4px;
-    border: 1.5px solid #cbd5e1;
-    cursor: pointer;
-}
-
-.form-check-custom .form-check-input:checked {
-    background-color: var(--bms-primary);
-    border-color: var(--bms-primary);
-}
-
-.form-check-custom .form-check-label {
-    font-size: 0.875rem;
-    color: #475569;
-    cursor: pointer;
-    user-select: none;
-}
-
-/* Primary Auth Buttons */
 .btn-bms-primary {
     background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
     color: #ffffff;
     border: none;
-    height: 50px;
+    height: 48px;
     border-radius: var(--bms-radius-sm);
     font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: 0.01em;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    padding: 0 1.5rem;
     transition: var(--bms-transition);
     display: inline-flex;
     align-items: center;
@@ -242,17 +345,11 @@ main {
     box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
 }
 
-.btn-bms-primary:active {
-    transform: translateY(0);
-}
-
-/* Link Styling */
 .auth-link {
     color: var(--bms-primary);
     font-weight: 600;
     font-size: 0.9rem;
     text-decoration: none;
-    transition: var(--bms-transition);
 }
 
 .auth-link:hover {
@@ -260,7 +357,6 @@ main {
     text-decoration: underline;
 }
 
-/* Password Strength Indicator Meter */
 .password-strength-container {
     margin-top: 0.5rem;
 }
@@ -270,23 +366,14 @@ main {
     border-radius: 2px;
     background-color: #e2e8f0;
     overflow: hidden;
-    margin-bottom: 0.35rem;
 }
 
 .password-strength-progress {
     height: 100%;
     width: 0%;
-    transition: width 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
+    transition: width 0.3s ease;
 }
 
-.password-strength-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--bms-text-muted);
-}
-
-/* Alert Banner Component */
 .bms-alert {
     border-radius: var(--bms-radius-sm);
     padding: 0.85rem 1.15rem;
@@ -297,27 +384,11 @@ main {
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.bms-alert-success {
-    background-color: #ecfdf5;
-    color: #065f46;
-    border-left: 4px solid #10b981;
-}
+.bms-alert-success { background-color: #ecfdf5; color: #065f46; border-left: 4px solid #10b981; }
+.bms-alert-danger { background-color: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; }
 
-.bms-alert-danger {
-    background-color: #fef2f2;
-    color: #991b1b;
-    border-left: 4px solid #ef4444;
-}
-
-.bms-alert-icon {
-    font-size: 1.25rem;
-    line-height: 1;
-}
-
-/* Divider line */
 .auth-divider {
     display: flex;
     align-items: center;
@@ -327,13 +398,10 @@ main {
     font-size: 0.85rem;
 }
 
-.auth-divider::before,
-.auth-divider::after {
+.auth-divider::before, .auth-divider::after {
     content: '';
     flex: 1;
     border-bottom: 1px solid #e2e8f0;
 }
 
-.auth-divider span {
-    padding: 0 0.75rem;
-}
+.auth-divider span { padding: 0 0.75rem; }

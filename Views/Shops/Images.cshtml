@@ -1,0 +1,83 @@
+@model BMS.Models.ViewModels.ShopImageViewModel
+
+@{
+    ViewData["Title"] = $"Shop Photos: {Model.ShopNumber}";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Storefront & Layout Photos</h1>
+        <p class="page-header-subtitle">Manage internal retail layout photos and external storefront images for <strong>Shop @Model.ShopNumber</strong></p>
+    </div>
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.ShopId" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Shop Details
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-upload me-2 text-primary"></i> Upload Storefront Image</h5>
+            </div>
+            <div class="bms-card-body">
+                <form asp-action="UploadImage" method="post">
+                    <input type="hidden" asp-for="ShopId" />
+
+                    <div class="form-group-custom">
+                        <label asp-for="ImageUrl" class="form-label-custom">Image File URL / Path <span class="text-danger">*</span></label>
+                        <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/shop-front.jpg" autofocus style="height: 48px; border-radius: 10px;" />
+                        <span asp-validation-for="ImageUrl" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-bms-primary w-100 mt-3">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Save Shop Photo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-images me-2 text-info"></i> Uploaded Storefront Photos (@Model.ExistingImages.Count)</h5>
+            </div>
+            <div class="bms-card-body">
+                @if (!Model.ExistingImages.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-image fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                        No images uploaded for this shop unit yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-3">
+                        @foreach (var img in Model.ExistingImages)
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                                    <img src="@img.Photo" class="card-img-top" alt="Shop media" style="height: 160px; object-fit: cover;" />
+                                    <div class="card-body p-2 text-center">
+                                        <small class="text-muted d-block text-truncate">Shop Image #@img.Id</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

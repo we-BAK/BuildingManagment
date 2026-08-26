@@ -1,0 +1,125 @@
+@model BMS.Models.ViewModels.RoomFormViewModel
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Room" : "Create Room";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">@(isEdit ? "Edit Room Details" : "Create New Room Unit")</h1>
+                <p class="page-header-subtitle">Specify room code number, size, bedrooms, bathrooms, and initial rent</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Rooms
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="BuildingId" class="form-label-custom">Building Asset <span class="text-danger">*</span></label>
+                                <select asp-for="BuildingId" asp-items="ViewBag.Buildings" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Building --</option>
+                                </select>
+                                <span asp-validation-for="BuildingId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="FloorId" class="form-label-custom">Floor Level</label>
+                                <select asp-for="FloorId" asp-items="ViewBag.Floors" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Floor --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="RoomNumber" class="form-label-custom">Room Number / Code <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-door-open input-leading-icon"></i>
+                                    <input asp-for="RoomNumber" class="form-control" placeholder="e.g. 204-A" autofocus />
+                                </div>
+                                <span asp-validation-for="RoomNumber" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="RoomStatueId" class="form-label-custom">Room Status <span class="text-danger">*</span></label>
+                                <select asp-for="RoomStatueId" asp-items="ViewBag.Statuses" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Status --</option>
+                                </select>
+                                <span asp-validation-for="RoomStatueId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Bedrooms" class="form-label-custom">Bedrooms</label>
+                                <input asp-for="Bedrooms" type="number" class="form-control" placeholder="2" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Bathrooms" class="form-label-custom">Bathrooms</label>
+                                <input asp-for="Bathrooms" type="number" class="form-control" placeholder="1" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="Size" class="form-label-custom">Size (Sq Ft)</label>
+                                <input asp-for="Size" type="number" step="0.1" class="form-control" placeholder="850.0" style="height: 48px; border-radius: 10px;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!isEdit)
+                    {
+                        <div class="form-group-custom">
+                            <label asp-for="DefaultRent" class="form-label-custom">Default Monthly Rent Rate ($)</label>
+                            <div class="input-icon-group">
+                                <i class="bi bi-cash input-leading-icon"></i>
+                                <input asp-for="DefaultRent" type="number" step="0.01" class="form-control" placeholder="1200.00" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-check-custom my-3">
+                        <input asp-for="IsActive" class="form-check-input" id="rm-active-check" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="rm-active-check">Active Room Listing</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> @(isEdit ? "Update Room" : "Save Room")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

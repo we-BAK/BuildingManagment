@@ -1,0 +1,84 @@
+@model IEnumerable<BMS.Models.RoomRental>
+
+@{
+    ViewData["Title"] = "Active Leases & Rental Agreements";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Active Leases & Rental Agreements</h1>
+        <p class="page-header-subtitle">Directory of binding tenant contracts, monthly rental amounts, start/end dates, and lease status</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-bms-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> New Lease Agreement
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="bms-card">
+    <div class="bms-card-body p-0">
+        <div class="table-responsive">
+            <table class="bms-table">
+                <thead>
+                    <tr>
+                        <th>Agreement ID</th>
+                        <th>Tenant</th>
+                        <th>Property Unit</th>
+                        <th>Lease Term</th>
+                        <th>Monthly Rent</th>
+                        <th>Lease Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No active lease agreements registered yet. Click "New Lease Agreement" to create one.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model)
+                        {
+                            <tr>
+                                <td>#LEASE-@r.Id</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@(r.Tenant?.FirstName + " " + r.Tenant?.LastName)</div>
+                                    <small class="text-muted">ID: @(r.Tenant?.IdentityCardNumber ?? "N/A")</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        Room @(r.Room?.RoomNumber ?? "N/A") (@(r.Room?.Building?.Name ?? "Building"))
+                                    </span>
+                                </td>
+                                <td>@r.StartDate.ToString("MMM dd, yyyy") &mdash; @r.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td><span class="fw-bold text-success">$@((r.Price ?? 0).ToString("N2"))/mo</span></td>
+                                <td>
+                                    @if (r.IsActive)
+                                    {
+                                        <span class="badge-status badge-status-active"><i class="bi bi-check-circle"></i> Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-status-terminated"><i class="bi bi-x-circle"></i> Ended</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-outline-secondary btn-sm rounded-2"><i class="bi bi-pencil me-1"></i> Edit Lease</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

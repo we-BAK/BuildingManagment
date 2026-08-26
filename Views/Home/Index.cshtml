@@ -1,8 +1,153 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model BMS.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Executive Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Executive Dashboard</h1>
+        <p class="page-header-subtitle">Real-time performance overview of building assets, unit occupancies, and rental requests</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Buildings" asp-action="Create" class="btn btn-primary btn-sm rounded-3 px-3 fw-semibold shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Add Building
+        </a>
+        <a asp-controller="RoomRentals" asp-action="Create" class="btn btn-success btn-sm rounded-3 px-3 fw-semibold shadow-sm text-white">
+            <i class="bi bi-key me-1"></i> New Lease
+        </a>
+    </div>
+</div>
+
+<!-- Alert Notifications -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Top KPI Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-icon indigo">
+                <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-card-value">@Model.TotalBuildings</div>
+            <div class="stat-card-label">Registered Buildings</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-icon cyan">
+                <i class="bi bi-door-open"></i>
+            </div>
+            <div class="stat-card-value">@(Model.TotalRooms + Model.TotalShops)</div>
+            <div class="stat-card-label">Total Units (@Model.TotalRooms Rooms, @Model.TotalShops Shops)</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-icon emerald">
+                <i class="bi bi-pie-chart"></i>
+            </div>
+            <div class="stat-card-value">@Model.OccupancyRate%</div>
+            <div class="stat-card-label">Occupancy Rate (@Model.ActiveRentalsCount Active Leases)</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-icon amber">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-card-value">@Model.PendingRequestsCount</div>
+            <div class="stat-card-label">Pending Rental Inquiries</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Pending Room Requests Queue -->
+    <div class="col-lg-7">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-inbox me-2 text-primary"></i> Pending Room Applications</h5>
+                <a asp-controller="RentalRequests" asp-action="Index" class="btn btn-link btn-sm text-decoration-none p-0 fw-semibold">View All</a>
+            </div>
+            <div class="bms-card-body p-0">
+                @if (!Model.PendingRoomRequests.Any())
+                {
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-check2-circle fs-2 d-block mb-2 text-success"></i>
+                        No pending room rental inquiries at this time.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="bms-table">
+                            <thead>
+                                <tr>
+                                    <th>Applicant</th>
+                                    <th>Target Room</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in Model.PendingRoomRequests)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@(req.User?.FullName ?? "Applicant")</td>
+                                        <td><span class="badge bg-light text-dark border">Room @(req.Room?.RoomNumber ?? "N/A")</span></td>
+                                        <td>@req.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <a asp-controller="RentalRequests" asp-action="Review" asp-route-id="@req.Id" asp-route-type="Room" class="btn btn-outline-primary btn-sm rounded-2">
+                                                Review
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Feed -->
+    <div class="col-lg-5">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-bell me-2 text-warning"></i> Recent System Alerts</h5>
+            </div>
+            <div class="bms-card-body p-0">
+                @if (!Model.RecentNotifications.Any())
+                {
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-bell-slash fs-2 d-block mb-2 opacity-50"></i>
+                        No system notifications recorded.
+                    </div>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var note in Model.RecentNotifications)
+                        {
+                            <li class="list-group-item p-3 border-bottom">
+                                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 fw-semibold text-dark">@(note.Title ?? "Alert")</h6>
+                                    <small class="text-muted">@note.CreatedDate.ToString("g")</small>
+                                </div>
+                                <p class="mb-0 text-muted fs-sm">@(note.Detail ?? "No details provided.")</p>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
 </div>

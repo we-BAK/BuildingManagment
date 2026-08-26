@@ -1,0 +1,85 @@
+@model BMS.Models.ViewModels.BuildingTypeFormViewModel
+
+@{
+    ViewData["Title"] = "Building Classifications & Types";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Building Types & Classifications</h1>
+        <p class="page-header-subtitle">Manage asset category types (Commercial, Residential, Mixed-Use, Retail Park, Industrial)</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Buildings
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-tag me-2 text-primary"></i> Create Classification</h5>
+            </div>
+            <div class="bms-card-body">
+                <form asp-action="CreateType" method="post">
+                    <div class="form-group-custom">
+                        <label asp-for="Name" class="form-label-custom">Type Name <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Commercial Complex" autofocus style="height: 48px; border-radius: 10px;" />
+                    </div>
+
+                    <button type="submit" class="btn btn-bms-primary w-100 mt-3">
+                        <i class="bi bi-plus-lg me-1"></i> Save Building Type
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-tags me-2 text-info"></i> Registered Building Types (@Model.ExistingTypes.Count)</h5>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Type ID</th>
+                                <th>Classification Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.ExistingTypes.Any())
+                            {
+                                <tr><td colspan="3" class="text-center py-4 text-muted">No building types configured.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var t in Model.ExistingTypes)
+                                {
+                                    <tr>
+                                        <td>#TYPE-@t.Id</td>
+                                        <td class="fw-bold text-dark fs-6">@t.Name</td>
+                                        <td><span class="badge-status badge-status-active">Active</span></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

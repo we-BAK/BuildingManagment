@@ -1,0 +1,111 @@
+@model BMS.Models.ViewModels.RoomRentalFormViewModel
+
+@{
+    bool isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Lease Agreement" : "New Lease Agreement";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">@(isEdit ? "Edit Lease Agreement" : "Setup New Lease Agreement")</h1>
+                <p class="page-header-subtitle">Assign room unit, select tenant, define start/end contract dates, and monthly rent rate</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Leases
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="RoomId" class="form-label-custom">Select Property Room <span class="text-danger">*</span></label>
+                                <select asp-for="RoomId" asp-items="ViewBag.Rooms" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Room Unit --</option>
+                                </select>
+                                <span asp-validation-for="RoomId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="TenantId" class="form-label-custom">Select Tenant <span class="text-danger">*</span></label>
+                                <select asp-for="TenantId" asp-items="ViewBag.Tenants" class="form-select" style="height: 48px; border-radius: 10px;">
+                                    <option value="">-- Select Registered Tenant --</option>
+                                </select>
+                                <span asp-validation-for="TenantId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="StartDate" class="form-label-custom">Contract Start Date <span class="text-danger">*</span></label>
+                                <input asp-for="StartDate" type="date" class="form-control" style="height: 48px; border-radius: 10px;" />
+                                <span asp-validation-for="StartDate" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="EndDate" class="form-label-custom">Contract Expiration Date <span class="text-danger">*</span></label>
+                                <input asp-for="EndDate" type="date" class="form-control" style="height: 48px; border-radius: 10px;" />
+                                <span asp-validation-for="EndDate" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="MonthlyRent" class="form-label-custom">Agreed Monthly Rent ($) <span class="text-danger">*</span></label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-cash input-leading-icon"></i>
+                                    <input asp-for="MonthlyRent" type="number" step="0.01" class="form-control" placeholder="1350.00" />
+                                </div>
+                                <span asp-validation-for="MonthlyRent" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom mb-0">
+                                <label asp-for="SecurityDeposit" class="form-label-custom">Security Deposit Amount ($)</label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-shield-lock input-leading-icon"></i>
+                                    <input asp-for="SecurityDeposit" type="number" step="0.01" class="form-control" placeholder="1350.00" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check-custom my-3">
+                        <input asp-for="IsActive" class="form-check-input" id="lease-active-check" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="lease-active-check">Active Binding Contract</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> @(isEdit ? "Update Lease" : "Save Agreement")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

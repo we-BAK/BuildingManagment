@@ -1,0 +1,193 @@
+@model BMS.Models.ViewModels.BuildingDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Building: {Model.Building.Name}";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">@Model.Building.Name</h1>
+        <p class="page-header-subtitle"><i class="bi bi-geo-alt me-1"></i> @(Model.Building.Location ?? "No location specified") | Type: <strong>@(Model.Building.BuildingType?.Name ?? "General")</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Building.Id" class="btn btn-outline-primary btn-sm rounded-3">
+            <i class="bi bi-pencil me-1"></i> Edit Building
+        </a>
+        <a asp-action="Images" asp-route-id="@Model.Building.Id" class="btn btn-outline-info btn-sm rounded-3">
+            <i class="bi bi-image me-1"></i> Gallery
+        </a>
+        <a asp-action="Specifications" asp-route-id="@Model.Building.Id" class="btn btn-outline-dark btn-sm rounded-3">
+            <i class="bi bi-sliders me-1"></i> Technical Specs
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm rounded-3">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stat Badges -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card py-3">
+            <div class="stat-card-value fs-3">@Model.Floors.Count</div>
+            <div class="stat-card-label">Total Floors</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card py-3">
+            <div class="stat-card-value fs-3">@Model.Rooms.Count</div>
+            <div class="stat-card-label">Rooms / Apartments</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card py-3">
+            <div class="stat-card-value fs-3">@Model.Shops.Count</div>
+            <div class="stat-card-label">Retail Shops</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card py-3">
+            <div class="stat-card-value fs-3 text-primary">@Model.Specifications.Count</div>
+            <div class="stat-card-label">Technical Attributes</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Building Units (Rooms & Shops) -->
+    <div class="col-lg-8">
+        <div class="bms-card mb-4">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-door-open me-2 text-primary"></i> Property Rooms / Apartments</h5>
+                <a asp-controller="Rooms" asp-action="Create" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg"></i> Add Room</a>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Room #</th>
+                                <th>Bedrooms / Baths</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Rooms.Any())
+                            {
+                                <tr><td colspan="5" class="text-center py-3 text-muted">No rooms created in this building yet.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var rm in Model.Rooms)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">Room @rm.RoomNumber</td>
+                                        <td>@rm.Bedrooms Beds / @rm.Bathrooms Baths</td>
+                                        <td>@rm.Size sq ft</td>
+                                        <td><span class="badge bg-light text-dark border">@(rm.RoomStatue?.Name ?? "Vacant")</span></td>
+                                        <td><a asp-controller="Rooms" asp-action="Details" asp-route-id="@rm.Id" class="btn btn-sm btn-light border">Details</a></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-shop me-2 text-info"></i> Commercial Shops</h5>
+                <a asp-controller="Shops" asp-action="Create" class="btn btn-sm btn-outline-info"><i class="bi bi-plus-lg"></i> Add Shop</a>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Shop #</th>
+                                <th>Facade Type</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Shops.Any())
+                            {
+                                <tr><td colspan="5" class="text-center py-3 text-muted">No retail shop spaces created in this building.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var sh in Model.Shops)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">Shop @sh.ShopNumber</td>
+                                        <td>@(sh.FacadeType ?? "Standard")</td>
+                                        <td>@sh.Size sq ft</td>
+                                        <td><span class="badge bg-light text-dark border">@(sh.ShopStatus?.Name ?? "Vacant")</span></td>
+                                        <td><a asp-controller="Shops" asp-action="Details" asp-route-id="@sh.Id" class="btn btn-sm btn-light border">Details</a></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Specs & Gallery Sidebar -->
+    <div class="col-lg-4">
+        <!-- Technical Specs Widget -->
+        <div class="bms-card mb-4">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-sliders me-2 text-dark"></i> Technical Specs</h5>
+            </div>
+            <div class="bms-card-body">
+                @if (!Model.Specifications.Any())
+                {
+                    <p class="text-muted small mb-0">No technical features recorded. <a asp-action="Specifications" asp-route-id="@Model.Building.Id">Add Specs</a></p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var spec in Model.Specifications)
+                        {
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-dark">@spec.Title</span>
+                                <span class="badge bg-primary-subtle text-primary border">@spec.Detail</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <!-- Gallery Snippet Widget -->
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-images me-2 text-info"></i> Photos & Floor Plans</h5>
+            </div>
+            <div class="bms-card-body">
+                @if (!Model.Images.Any())
+                {
+                    <p class="text-muted small mb-0">No images uploaded. <a asp-action="Images" asp-route-id="@Model.Building.Id">Upload Photo</a></p>
+                }
+                else
+                {
+                    <div class="row g-2">
+                        @foreach (var img in Model.Images.Take(4))
+                        {
+                            <div class="col-6">
+                                <img src="@img.Photo" alt="Building image" class="img-fluid rounded-3 border" style="height: 90px; width: 100%; object-fit: cover;" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

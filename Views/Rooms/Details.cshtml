@@ -1,0 +1,106 @@
+@model BMS.Models.ViewModels.RoomDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Room {Model.Room.RoomNumber} Details";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Room @Model.Room.RoomNumber</h1>
+        <p class="page-header-subtitle"><i class="bi bi-building me-1"></i> @(Model.Room.Building?.Name ?? "Building") | Floor: <strong>@(Model.Room.Floor?.Name ?? "N/A")</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="btn btn-outline-primary btn-sm rounded-3">
+            <i class="bi bi-pencil me-1"></i> Edit Room
+        </a>
+        <a asp-action="Prices" asp-route-id="@Model.Room.Id" class="btn btn-outline-success btn-sm rounded-3">
+            <i class="bi bi-currency-dollar me-1"></i> Rent Pricing
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm rounded-3">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Key Room Specs -->
+    <div class="col-lg-4">
+        <div class="bms-card mb-4">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-info-circle me-2 text-primary"></i> Unit Parameters</h5>
+            </div>
+            <div class="bms-card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Status</span>
+                        <span class="badge bg-light text-dark border">@(Model.Room.RoomStatue?.Name ?? "Vacant")</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Bedrooms</span>
+                        <span class="fw-bold">@Model.Room.Bedrooms</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Bathrooms</span>
+                        <span class="fw-bold">@Model.Room.Bathrooms</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                        <span class="text-muted">Floor Area</span>
+                        <span class="fw-bold">@Model.Room.Size sq ft</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lease History -->
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-clock-history me-2 text-info"></i> Lease History & Occupancy Records</h5>
+            </div>
+            <div class="bms-card-body p-0">
+                <div class="table-responsive">
+                    <table class="bms-table">
+                        <thead>
+                            <tr>
+                                <th>Tenant Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Monthly Rent</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.RentalHistory.Any())
+                            {
+                                <tr><td colspan="5" class="text-center py-4 text-muted">No rental history records found for this room.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var r in Model.RentalHistory)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@(r.Tenant?.FirstName + " " + r.Tenant?.LastName)</td>
+                                        <td>@r.StartDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@r.EndDate.ToString("MMM dd, yyyy")</td>
+                                        <td class="text-success fw-bold">$@((r.Price ?? 0).ToString("N2"))</td>
+                                        <td>
+                                            @if (r.IsActive)
+                                            {
+                                                <span class="badge-status badge-status-active">Active Lease</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-status badge-status-terminated">Completed</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

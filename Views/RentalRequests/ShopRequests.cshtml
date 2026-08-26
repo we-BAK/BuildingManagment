@@ -1,0 +1,80 @@
+@model IEnumerable<BMS.Models.ShopRequest>
+
+@{
+    ViewData["Title"] = "Commercial Shop Rental Requests";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Commercial Shop Rental Applications</h1>
+        <p class="page-header-subtitle">Review incoming commercial inquiries and retail lease applications</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-door-open me-1"></i> Switch to Room Requests
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="bms-card">
+    <div class="bms-card-body p-0">
+        <div class="table-responsive">
+            <table class="bms-table">
+                <thead>
+                    <tr>
+                        <th>Application ID</th>
+                        <th>Applicant</th>
+                        <th>Target Shop</th>
+                        <th>Building Asset</th>
+                        <th>Submitted Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No commercial shop rental inquiries submitted yet.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var s in Model)
+                        {
+                            <tr>
+                                <td>#REQ-SHP-@s.Id</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@(s.User?.FullName ?? "Applicant")</div>
+                                    <small class="text-muted">@(s.User?.Email ?? "N/A")</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">Shop @(s.Shop?.ShopNumber ?? "N/A")</span></td>
+                                <td>@(s.Shop?.Building?.Name ?? "N/A")</td>
+                                <td>@s.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @{
+                                        var statusName = s.Status?.Name ?? "Pending";
+                                        var statusClass = statusName.ToLower().Contains("appr") ? "badge-status-approved" :
+                                                          statusName.ToLower().Contains("decl") || statusName.ToLower().Contains("reje") ? "badge-status-declined" : "badge-status-pending";
+                                    }
+                                    <span class="badge-status @statusClass">@statusName</span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Review" asp-route-id="@s.Id" asp-route-type="Shop" class="btn btn-primary btn-sm px-3 rounded-2">
+                                        <i class="bi bi-shield-check me-1"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

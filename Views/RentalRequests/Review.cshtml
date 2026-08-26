@@ -1,0 +1,86 @@
+@model BMS.Models.ViewModels.RentalRequestReviewViewModel
+
+@{
+    ViewData["Title"] = $"Review Application #{Model.RequestId}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header-container">
+            <div>
+                <h1 class="page-header-title">Review @Model.RequestType Application</h1>
+                <p class="page-header-subtitle">Evaluate applicant details, background, and issue an approval or decline decision</p>
+            </div>
+            <div>
+                <a asp-action="@(Model.RequestType == "Shop" ? "ShopRequests" : "Index")" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Applications
+                </a>
+            </div>
+        </div>
+
+        <div class="bms-card mb-4">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-person-lines-fill me-2 text-primary"></i> Applicant Profile & Request Summary</h5>
+            </div>
+            <div class="bms-card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Applicant Full Name</small>
+                        <div class="fw-bold fs-6 text-dark">@Model.ApplicantName</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Target Property Unit</small>
+                        <div class="fw-bold fs-6 text-primary">@Model.PropertyName</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Contact Email</small>
+                        <div class="fw-semibold">@Model.ApplicantEmail</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Phone Number</small>
+                        <div class="fw-semibold">@Model.ApplicantPhone</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Submission Date</small>
+                        <div class="fw-semibold">@Model.RequestDate.ToString("MMMM dd, yyyy - hh:mm tt")</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Current Status</small>
+                        <span class="badge bg-warning-subtle text-warning-emphasis border">@Model.CurrentStatus</span>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block">Applicant Remarks / Notes</small>
+                        <div class="p-3 bg-light rounded-3 border mt-1">@Model.Notes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decision Forms -->
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-clipboard-check me-2 text-dark"></i> Staff Review Decision</h5>
+            </div>
+            <div class="bms-card-body">
+                <form method="post">
+                    <input type="hidden" asp-for="RequestId" />
+                    <input type="hidden" asp-for="RequestType" />
+
+                    <div class="form-group-custom">
+                        <label asp-for="ReviewNotes" class="form-label-custom">Review Remarks / Decision Notes</label>
+                        <textarea asp-for="ReviewNotes" class="form-control" rows="3" placeholder="Enter optional notes regarding credit check, ID verification, or approval conditions..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="submit" asp-action="Approve" class="btn btn-success flex-grow-1 py-2 fw-semibold">
+                            <i class="bi bi-check-circle me-1"></i> Approve Application
+                        </button>
+                        <button type="submit" asp-action="Decline" class="btn btn-outline-danger flex-grow-1 py-2 fw-semibold">
+                            <i class="bi bi-x-circle me-1"></i> Decline Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
