@@ -174,7 +174,8 @@ namespace BMS.Controllers
             var shopImage = new ShopImage
             {
                 ShopId = model.ShopId,
-                Photo = model.ImageUrl,
+                ImageUrl = model.ImageUrl, // Fixed: Changed 'Photo' to 'ImageUrl'
+                Description = model.Description ?? "Shop Image", // Required field in ShopImage
                 IsActive = true,
                 IsDeleted = false
             };

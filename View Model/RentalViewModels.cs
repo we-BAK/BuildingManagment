@@ -33,6 +33,10 @@ namespace BMS.Models.ViewModels
         [Display(Name = "Select Tenant")]
         public int TenantId { get; set; }
 
+        [Required(ErrorMessage = "Business Area selection is required.")]
+        [Display(Name = "Business Area")]
+        public int BusinessAreaId { get; set; }
+
         [Required(ErrorMessage = "Start Date is required.")]
         [DataType(DataType.Date)]
         [Display(Name = "Lease Start Date")]
