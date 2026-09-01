@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BMS.Models;
 using BMS.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BMS.Controllers
@@ -21,7 +22,8 @@ namespace BMS.Controllers
         public async Task<IActionResult> Index()
         {
             var tenants = await _context.Tenants
-                .Include(t => t.RoomRentals)
+                .Include(t => t.Building)
+                .Include(t => t.TenantType)
                 .Where(t => !t.IsDeleted)
                 .OrderByDescending(t => t.Id)
                 .ToListAsync();
@@ -30,8 +32,9 @@ namespace BMS.Controllers
         }
 
         // GET: Tenants/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await PopulateDropdownsAsync();
             return View("CreateEdit", new TenantFormViewModel());
         }
 
@@ -40,18 +43,19 @@ namespace BMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TenantFormViewModel model)
         {
-            if (!ModelState.IsValid) return View("CreateEdit", model);
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdownsAsync(model.TenantTypeId);
+                return View("CreateEdit", model);
+            }
 
             var tenant = new Tenant
             {
-                FirstName = model.FirstName,
-                MiddleName = model.MiddleName ?? string.Empty,
-                LastName = model.LastName,
-                IdentityCardNumber = model.IdentityCardNumber,
-                Email = model.Email,
-                Phone = model.Phone,
+                Name = $"{model.FirstName} {model.LastName}".Trim(), // Maps full name to Name
+                Contact = model.Phone ?? model.Email ?? string.Empty, // Maps contact info to Contact
+                Description = model.CompanyName ?? "Individual Tenant",
                 TenantTypeId = model.TenantTypeId ?? 1,
-                SexId = 1,
+                BuildingId = 1, // Set your default or selected BuildingId
                 IsActive = model.IsActive,
                 IsDeleted = false
             };
@@ -59,7 +63,7 @@ namespace BMS.Controllers
             _context.Tenants.Add(tenant);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Tenant '{tenant.FirstName} {tenant.LastName}' registered successfully!";
+            TempData["SuccessMessage"] = $"Tenant '{tenant.Name}' created successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,15 +76,14 @@ namespace BMS.Controllers
             var model = new TenantFormViewModel
             {
                 Id = tenant.Id,
-                FirstName = tenant.FirstName ?? string.Empty,
-                MiddleName = tenant.MiddleName ?? string.Empty,
-                LastName = tenant.LastName ?? string.Empty,
-                IdentityCardNumber = tenant.IdentityCardNumber ?? string.Empty,
-                Email = tenant.Email ?? string.Empty,
-                Phone = tenant.Phone ?? string.Empty,
+                FirstName = tenant.Name,
+                Phone = tenant.Contact,
+                CompanyName = tenant.Description,
+                TenantTypeId = tenant.TenantTypeId,
                 IsActive = tenant.IsActive
             };
 
+            await PopulateDropdownsAsync(tenant.TenantTypeId);
             return View("CreateEdit", model);
         }
 
@@ -91,146 +94,37 @@ namespace BMS.Controllers
         {
             if (id != model.Id) return NotFound();
 
-            if (!ModelState.IsValid) return View("CreateEdit", model);
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdownsAsync(model.TenantTypeId);
+                return View("CreateEdit", model);
+            }
 
             var tenant = await _context.Tenants.FindAsync(id);
             if (tenant == null || tenant.IsDeleted) return NotFound();
 
-            tenant.FirstName = model.FirstName;
-            tenant.MiddleName = model.MiddleName ?? string.Empty;
-            tenant.LastName = model.LastName;
-            tenant.IdentityCardNumber = model.IdentityCardNumber;
-            tenant.Email = model.Email;
-            tenant.Phone = model.Phone;
+            tenant.Name = $"{model.FirstName} {model.LastName}".Trim();
+            tenant.Contact = model.Phone ?? model.Email ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(model.CompanyName)) tenant.Description = model.CompanyName;
+            if (model.TenantTypeId.HasValue) tenant.TenantTypeId = model.TenantTypeId.Value;
             tenant.IsActive = model.IsActive;
 
             _context.Tenants.Update(tenant);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Tenant profile updated successfully!";
+            TempData["SuccessMessage"] = $"Tenant '{tenant.Name}' updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Tenants/Terminations
-        public async Task<IActionResult> Terminations()
+        private async Task PopulateDropdownsAsync(int? selectedTenantTypeId = null)
         {
-            var terminations = await _context.RentalAgreementTerminations
-                .Include(t => t.RentalAgreement).ThenInclude(r => r.Room)
-                .Include(t => t.RentalAgreement).ThenInclude(r => r.Tenant)
-                .Include(t => t.Status)
-                .Where(t => !t.IsDeleted)
-                .OrderByDescending(t => t.CreatedDate)
-                .ToListAsync();
+            ViewBag.TenantTypes = new SelectList(await _context.TenantTypes
+                .Where(tt => !tt.IsDeleted)
+                .ToListAsync(), "Id", "Name", selectedTenantTypeId);
 
-            return View(terminations);
-        }
-
-        // GET: Tenants/RequestTermination
-        public async Task<IActionResult> RequestTermination()
-        {
-            ViewBag.ActiveRentals = await _context.RoomRentals
-                .Include(r => r.Room)
-                .Include(r => r.Tenant)
-                .Where(r => r.IsActive && !r.IsDeleted)
-                .ToListAsync();
-
-            return View(new TerminationRequestViewModel());
-        }
-
-        // POST: Tenants/RequestTermination
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestTermination(TerminationRequestViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.ActiveRentals = await _context.RoomRentals
-                    .Include(r => r.Room)
-                    .Include(r => r.Tenant)
-                    .Where(r => r.IsActive && !r.IsDeleted)
-                    .ToListAsync();
-                return View(model);
-            }
-
-            var termination = new RentalAgreementTermination
-            {
-                RentalAgreementId = model.RoomRentalId,
-                TerminationDate = model.RequestedTerminationDate,
-                Reason = model.Reason,
-                StatusId = 1, // Pending
-                CreatedDate = DateTime.UtcNow,
-                IsActive = true,
-                IsDeleted = false
-            };
-
-            _context.RentalAgreementTerminations.Add(termination);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Rental Agreement Termination request submitted!";
-            return RedirectToAction(nameof(Terminations));
-        }
-
-        // GET: Tenants/TerminationApproval/5
-        public async Task<IActionResult> TerminationApproval(int id)
-        {
-            var termination = await _context.RentalAgreementTerminations
-                .Include(t => t.RentalAgreement).ThenInclude(r => r.Room)
-                .Include(t => t.RentalAgreement).ThenInclude(r => r.Tenant)
-                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
-
-            if (termination == null) return NotFound();
-
-            var viewModel = new TerminationApprovalViewModel
-            {
-                TerminationId = termination.Id,
-                TenantName = $"{termination.RentalAgreement?.Tenant?.FirstName} {termination.RentalAgreement?.Tenant?.LastName}",
-                RoomNumber = termination.RentalAgreement?.Room?.RoomNumber ?? "N/A",
-                RequestedDate = termination.TerminationDate,
-                Reason = termination.Reason ?? "N/A"
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: Tenants/ProcessTermination
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessTermination(int terminationId, bool approved, string approvalNotes)
-        {
-            var termination = await _context.RentalAgreementTerminations
-                .Include(t => t.RentalAgreement).ThenInclude(r => r.Room)
-                .FirstOrDefaultAsync(t => t.Id == terminationId && !t.IsDeleted);
-
-            if (termination == null) return NotFound();
-
-            termination.StatusId = approved ? 2 : 3; // 2: Approved, 3: Rejected
-            termination.Reason = (termination.Reason + " | Inspection Remarks: " + approvalNotes).Trim();
-
-            if (approved && termination.RentalAgreement != null)
-            {
-                termination.RentalAgreement.IsActive = false;
-                if (termination.RentalAgreement.Room != null)
-                {
-                    termination.RentalAgreement.Room.RoomStatueId = 1; // Vacant
-                }
-            }
-
-            var approvalRecord = new RentalTerminationApproval
-            {
-                TerminationId = termination.Id,
-                Remarks = approvalNotes,
-                IsApproved = approved,
-                ApprovalDate = DateTime.UtcNow,
-                IsActive = true,
-                IsDeleted = false
-            };
-
-            _context.RentalTerminationApprovals.Add(approvalRecord);
-            _context.RentalAgreementTerminations.Update(termination);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = approved ? "Termination request approved & property unit vacated." : "Termination request rejected.";
-            return RedirectToAction(nameof(Terminations));
+            ViewBag.Buildings = new SelectList(await _context.Buildings
+                .Where(b => !b.IsDeleted)
+                .ToListAsync(), "Id", "Name");
         }
     }
 }
