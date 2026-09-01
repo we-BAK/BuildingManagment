@@ -150,7 +150,8 @@ namespace BMS.Controllers
             var floorPrice = new FloorPrice
             {
                 FloorId = model.FloorId,
-                PricePerM2 = (double)model.BasePrice,
+                Name = "Base Rate", // Required property in FloorPrice model
+                Price = (double)model.BasePrice, // Fixed: Changed PricePerM2 to Price
                 AppliedDate = DateOnly.FromDateTime(DateTime.Today),
                 IsActive = true,
                 IsDeleted = false
