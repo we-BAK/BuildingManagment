@@ -1,19 +1,57 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.RoomDetailsViewModel
 
 @{
-    ViewData["Title"] = $"Room {Model.Room.RoomNumber} Details";
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    string FormatDate(object? obj, params string[] propNames)
+    {
+        var rawVal = GetProp(obj, propNames);
+        if (rawVal is DateTime dt) return dt.ToString("MMM dd, yyyy");
+        return "N/A";
+    }
+
+    var roomObj = Model?.Room;
+
+    var roomNumber = GetProp(roomObj, "Name", "RoomNumber", "Number")?.ToString() ?? "N/A";
+    var floorObj = GetProp(roomObj, "Floor");
+    var buildingObj = GetProp(roomObj, "Building") ?? GetProp(floorObj, "Building");
+
+    var buildingName = GetProp(buildingObj, "Name", "Title")?.ToString() ?? "Building";
+    var floorName = GetProp(floorObj, "Name", "FloorNumber")?.ToString() ?? "N/A";
+
+    var roomStatusObj = GetProp(roomObj, "RoomStatue", "RoomStatus", "Status");
+    var statusName = GetProp(roomStatusObj, "Name", "Title")?.ToString() ?? GetProp(roomObj, "Status")?.ToString() ?? "Vacant";
+
+    var bedrooms = GetProp(roomObj, "Bedrooms", "BedRoom", "BedroomCount")?.ToString() ?? "0";
+    var bathrooms = GetProp(roomObj, "Bathrooms", "BathRoom", "BathroomCount")?.ToString() ?? "0";
+    var sizeSqFt = GetProp(roomObj, "Size", "Area", "SqFt", "SquareFeet")?.ToString() ?? "0";
+
+    var roomId = GetProp(roomObj, "Id");
+
+    ViewData["Title"] = $"Room {roomNumber} Details";
 }
 
 <div class="page-header-container">
     <div>
-        <h1 class="page-header-title">Room @Model.Room.RoomNumber</h1>
-        <p class="page-header-subtitle"><i class="bi bi-building me-1"></i> @(Model.Room.Building?.Name ?? "Building") | Floor: <strong>@(Model.Room.Floor?.Name ?? "N/A")</strong></p>
+        <h1 class="page-header-title">Room @roomNumber</h1>
+        <p class="page-header-subtitle"><i class="bi bi-building me-1"></i> @buildingName | Floor: <strong>@floorName</strong></p>
     </div>
     <div class="d-flex gap-2">
-        <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="btn btn-outline-primary btn-sm rounded-3">
+        <a asp-action="Edit" asp-route-id="@roomId" class="btn btn-outline-primary btn-sm rounded-3">
             <i class="bi bi-pencil me-1"></i> Edit Room
         </a>
-        <a asp-action="Prices" asp-route-id="@Model.Room.Id" class="btn btn-outline-success btn-sm rounded-3">
+        <a asp-action="Prices" asp-route-id="@roomId" class="btn btn-outline-success btn-sm rounded-3">
             <i class="bi bi-currency-dollar me-1"></i> Rent Pricing
         </a>
         <a asp-action="Index" class="btn btn-secondary btn-sm rounded-3">
@@ -33,19 +71,19 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Status</span>
-                        <span class="badge bg-light text-dark border">@(Model.Room.RoomStatue?.Name ?? "Vacant")</span>
+                        <span class="badge bg-light text-dark border">@statusName</span>
                     </li>
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Bedrooms</span>
-                        <span class="fw-bold">@Model.Room.Bedrooms</span>
+                        <span class="fw-bold">@bedrooms</span>
                     </li>
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Bathrooms</span>
-                        <span class="fw-bold">@Model.Room.Bathrooms</span>
+                        <span class="fw-bold">@bathrooms</span>
                     </li>
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Floor Area</span>
-                        <span class="fw-bold">@Model.Room.Size sq ft</span>
+                        <span class="fw-bold">@sizeSqFt sq ft</span>
                     </li>
                 </ul>
             </div>
@@ -71,7 +109,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!Model.RentalHistory.Any())
+                            @if (Model?.RentalHistory == null || !Model.RentalHistory.Any())
                             {
                                 <tr><td colspan="5" class="text-center py-4 text-muted">No rental history records found for this room.</td></tr>
                             }
@@ -79,13 +117,27 @@
                             {
                                 @foreach (var r in Model.RentalHistory)
                                 {
+                                    var tenantObj = GetProp(r, "Tenant", "User");
+                                    var firstName = GetProp(tenantObj, "FirstName", "Name")?.ToString();
+                                    var lastName = GetProp(tenantObj, "LastName")?.ToString();
+                                    var tenantName = !string.IsNullOrEmpty(firstName) ? $"{firstName} {lastName}".Trim() : GetProp(tenantObj, "FullName", "UserName")?.ToString() ?? "Tenant";
+
+                                    var startDateStr = FormatDate(r, "StartDate", "StartFrom", "RentDate");
+                                    var endDateStr = FormatDate(r, "EndDate", "EndTo", "ExpiryDate", "DueDate");
+
+                                    var rawPrice = GetProp(r, "Price", "MonthlyRent", "RentAmount", "Amount", "Cost");
+                                    var priceVal = rawPrice != null ? Convert.ToDecimal(rawPrice) : 0m;
+
+                                    var isActiveRaw = GetProp(r, "IsActive", "Active", "Status");
+                                    var isActive = isActiveRaw is bool b ? b : true;
+
                                     <tr>
-                                        <td class="fw-bold">@(r.Tenant?.FirstName + " " + r.Tenant?.LastName)</td>
-                                        <td>@r.StartDate.ToString("MMM dd, yyyy")</td>
-                                        <td>@r.EndDate.ToString("MMM dd, yyyy")</td>
-                                        <td class="text-success fw-bold">$@((r.Price ?? 0).ToString("N2"))</td>
+                                        <td class="fw-bold">@tenantName</td>
+                                        <td>@startDateStr</td>
+                                        <td>@endDateStr</td>
+                                        <td class="text-success fw-bold">$@priceVal.ToString("N2")</td>
                                         <td>
-                                            @if (r.IsActive)
+                                            @if (isActive)
                                             {
                                                 <span class="badge-status badge-status-active">Active Lease</span>
                                             }
