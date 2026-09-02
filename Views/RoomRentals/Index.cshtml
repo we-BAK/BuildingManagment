@@ -1,7 +1,27 @@
+@using System.Reflection
 @model IEnumerable<BMS.Models.RoomRental>
 
 @{
     ViewData["Title"] = "Active Leases & Rental Agreements";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    string FormatDate(object? obj, params string[] propNames)
+    {
+        var rawVal = GetProp(obj, propNames);
+        if (rawVal is DateTime dt) return dt.ToString("MMM dd, yyyy");
+        return "N/A";
+    }
 }
 
 <div class="page-header-container">
@@ -40,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (Model == null || !Model.Any())
                     {
                         <tr><td colspan="7" class="text-center py-4 text-muted">No active lease agreements registered yet. Click "New Lease Agreement" to create one.</td></tr>
                     }
@@ -48,21 +68,43 @@
                     {
                         @foreach (var r in Model)
                         {
+                            var tenantObj = GetProp(r, "Tenant", "User");
+                            var roomObj = GetProp(r, "Room");
+                            var floorObj = GetProp(roomObj, "Floor");
+                            var buildingObj = GetProp(roomObj, "Building") ?? GetProp(floorObj, "Building");
+
+                            var firstName = GetProp(tenantObj, "FirstName", "Name")?.ToString();
+                            var lastName = GetProp(tenantObj, "LastName")?.ToString();
+                            var tenantName = !string.IsNullOrEmpty(firstName) ? $"{firstName} {lastName}".Trim() : GetProp(tenantObj, "FullName", "UserName")?.ToString() ?? "Tenant";
+
+                            var tenantIdNum = GetProp(tenantObj, "IdentityCardNumber", "IdCardNumber", "NationalId", "IdentityNumber")?.ToString() ?? "N/A";
+                            var roomNumber = GetProp(roomObj, "Name", "RoomNumber", "Number")?.ToString() ?? "N/A";
+                            var buildingName = GetProp(buildingObj, "Name", "Title")?.ToString() ?? "Building";
+
+                            var startDateStr = FormatDate(r, "StartDate", "StartFrom", "RentDate");
+                            var endDateStr = FormatDate(r, "EndDate", "EndTo", "ExpiryDate", "DueDate");
+
+                            var rawPrice = GetProp(r, "Price", "MonthlyRent", "RentAmount", "Amount", "Cost");
+                            var priceVal = rawPrice != null ? Convert.ToDecimal(rawPrice) : 0m;
+
+                            var isActiveRaw = GetProp(r, "IsActive", "Active", "Status");
+                            var isActive = isActiveRaw is bool b ? b : true;
+
                             <tr>
                                 <td>#LEASE-@r.Id</td>
                                 <td>
-                                    <div class="fw-bold text-dark">@(r.Tenant?.FirstName + " " + r.Tenant?.LastName)</div>
-                                    <small class="text-muted">ID: @(r.Tenant?.IdentityCardNumber ?? "N/A")</small>
+                                    <div class="fw-bold text-dark">@tenantName</div>
+                                    <small class="text-muted">ID: @tenantIdNum</small>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border">
-                                        Room @(r.Room?.RoomNumber ?? "N/A") (@(r.Room?.Building?.Name ?? "Building"))
+                                        Room @roomNumber (@buildingName)
                                     </span>
                                 </td>
-                                <td>@r.StartDate.ToString("MMM dd, yyyy") &mdash; @r.EndDate.ToString("MMM dd, yyyy")</td>
-                                <td><span class="fw-bold text-success">$@((r.Price ?? 0).ToString("N2"))/mo</span></td>
+                                <td>@startDateStr &mdash; @endDateStr</td>
+                                <td><span class="fw-bold text-success">$@priceVal.ToString("N2")/mo</span></td>
                                 <td>
-                                    @if (r.IsActive)
+                                    @if (isActive)
                                     {
                                         <span class="badge-status badge-status-active"><i class="bi bi-check-circle"></i> Active</span>
                                     }
