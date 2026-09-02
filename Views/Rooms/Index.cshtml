@@ -1,7 +1,20 @@
+@using System.Reflection
 @model IEnumerable<BMS.Models.Room>
 
 @{
     ViewData["Title"] = "Rooms & Apartments Directory";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="page-header-container">
@@ -41,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (Model == null || !Model.Any())
                     {
                         <tr><td colspan="8" class="text-center py-4 text-muted">No rooms created yet. Click "Create Room Unit" to add one.</td></tr>
                     }
@@ -49,20 +62,57 @@
                     {
                         @foreach (var r in Model)
                         {
-                            var latestPrice = r.RoomPrices.FirstOrDefault(p => !p.IsDeleted);
+                            var roomId = GetProp(r, "Id") ?? "0";
+                            var roomNum = GetProp(r, "RoomNumber", "ShopNumber", "Number", "Name", "Code")?.ToString() ?? "N/A";
+
+                            var buildingObj = GetProp(r, "Building", "Property", "Asset");
+                            var buildingName = GetProp(buildingObj, "Name", "Title")?.ToString() ?? "N/A";
+
+                            var floorObj = GetProp(r, "Floor", "FloorLevel");
+                            var floorName = GetProp(floorObj, "Name", "Title", "Level")?.ToString() ?? "General Floor";
+
+                            var bedrooms = GetProp(r, "Bedrooms", "BedRoomCount", "Beds")?.ToString() ?? "0";
+                            var bathrooms = GetProp(r, "Bathrooms", "BathRoomCount", "Baths")?.ToString() ?? "0";
+                            var size = GetProp(r, "Size", "SquareFeet", "Area", "SqFt")?.ToString() ?? "N/A";
+
+                            var pricesList = GetProp(r, "RoomPrices", "Prices", "Rates") as System.Collections.IEnumerable;
+                            decimal? latestPriceVal = null;
+                            if (pricesList != null)
+                            {
+                                foreach (var p in pricesList)
+                                {
+                                    var isDeleted = GetProp(p, "IsDeleted") as bool? ?? false;
+                                    if (!isDeleted)
+                                    {
+                                        var pVal = GetProp(p, "Price", "Amount", "Rate", "MonthlyRent");
+                                        if (pVal != null && decimal.TryParse(pVal.ToString(), out decimal parsedDecimal))
+                                        {
+                                            latestPriceVal = parsedDecimal;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            var statusObj = GetProp(r, "RoomStatue", "RoomStatus", "Status", "State");
+                            var statusName = GetProp(statusObj, "Name", "Title", "StatusName")?.ToString() ?? statusObj?.ToString() ?? "Vacant";
+
+                            var statusClass = statusName.ToLower().Contains("occup") ? "badge-status-occupied" :
+                            statusName.ToLower().Contains("maint") ? "badge-status-maintenance" : "badge-status-vacant";
+
                             <tr>
                                 <td>
-                                    <div class="fw-bold text-dark fs-6">Room @r.RoomNumber</div>
-                                    <small class="text-muted">ID: #RM-@r.Id</small>
+                                    <div class="fw-bold text-dark fs-6">Room @roomNum</div>
+                                    <small class="text-muted">ID: #RM-@roomId</small>
                                 </td>
-                                <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>@(r.Building?.Name ?? "N/A")</span></td>
-                                <td>@(r.Floor?.Name ?? "General Floor")</td>
-                                <td>@r.Bedrooms Beds / @r.Bathrooms Baths</td>
-                                <td>@r.Size sq ft</td>
+                                <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>@buildingName</span></td>
+                                <td>@floorName</td>
+                                <td>@bedrooms Beds / @bathrooms Baths</td>
+                                <td>@size sq ft</td>
                                 <td>
-                                    @if (latestPrice != null)
+                                    @if (latestPriceVal.HasValue)
                                     {
-                                        <span class="fw-bold text-success">$@latestPrice.Price.ToString("N2")/mo</span>
+                                        <span class="fw-bold text-success">$@latestPriceVal.Value.ToString("N2")/mo</span>
                                     }
                                     else
                                     {
@@ -70,18 +120,13 @@
                                     }
                                 </td>
                                 <td>
-                                    @{
-                                        var statusName = r.RoomStatue?.Name ?? "Vacant";
-                                        var statusClass = statusName.ToLower().Contains("occup") ? "badge-status-occupied" :
-                                                          statusName.ToLower().Contains("maint") ? "badge-status-maintenance" : "badge-status-vacant";
-                                    }
                                     <span class="badge-status @statusClass">@statusName</span>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a asp-action="Details" asp-route-id="@r.Id" class="btn btn-outline-primary" title="Room Details"><i class="bi bi-eye"></i> Details</a>
-                                        <a asp-action="Edit" asp-route-id="@r.Id" class="btn btn-outline-secondary" title="Edit Room"><i class="bi bi-pencil"></i></a>
-                                        <a asp-action="Prices" asp-route-id="@r.Id" class="btn btn-outline-success" title="Manage Room Rent Rates"><i class="bi bi-currency-dollar"></i></a>
+                                        <a asp-action="Details" asp-route-id="@roomId" class="btn btn-outline-primary" title="Room Details"><i class="bi bi-eye"></i> Details</a>
+                                        <a asp-action="Edit" asp-route-id="@roomId" class="btn btn-outline-secondary" title="Edit Room"><i class="bi bi-pencil"></i></a>
+                                        <a asp-action="Prices" asp-route-id="@roomId" class="btn btn-outline-success" title="Manage Room Rent Rates"><i class="bi bi-currency-dollar"></i></a>
                                     </div>
                                 </td>
                             </tr>
