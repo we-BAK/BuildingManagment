@@ -1,7 +1,20 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.ShopImageViewModel
 
 @{
     ViewData["Title"] = $"Shop Photos: {Model.ShopNumber}";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="page-header-container">
@@ -51,10 +64,10 @@
     <div class="col-lg-8">
         <div class="bms-card">
             <div class="bms-card-header">
-                <h5 class="bms-card-title"><i class="bi bi-images me-2 text-info"></i> Uploaded Storefront Photos (@Model.ExistingImages.Count)</h5>
+                <h5 class="bms-card-title"><i class="bi bi-images me-2 text-info"></i> Uploaded Storefront Photos (@(Model.ExistingImages?.Count ?? 0))</h5>
             </div>
             <div class="bms-card-body">
-                @if (!Model.ExistingImages.Any())
+                @if (Model.ExistingImages == null || !Model.ExistingImages.Any())
                 {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-image fs-1 d-block mb-2 text-secondary opacity-50"></i>
@@ -66,11 +79,14 @@
                     <div class="row g-3">
                         @foreach (var img in Model.ExistingImages)
                         {
+                            var imgUrl = GetProp(img, "ImageUrl", "Photo", "Url", "ImagePath", "Path")?.ToString() ?? "";
+                            var imgId = GetProp(img, "Id") ?? "0";
+
                             <div class="col-md-6 col-lg-4">
                                 <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
-                                    <img src="@img.Photo" class="card-img-top" alt="Shop media" style="height: 160px; object-fit: cover;" />
+                                    <img src="@imgUrl" class="card-img-top" alt="Shop media" style="height: 160px; object-fit: cover;" />
                                     <div class="card-body p-2 text-center">
-                                        <small class="text-muted d-block text-truncate">Shop Image #@img.Id</small>
+                                        <small class="text-muted d-block text-truncate">Shop Image #@imgId</small>
                                     </div>
                                 </div>
                             </div>
