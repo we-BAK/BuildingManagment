@@ -1,7 +1,20 @@
+@using System.Reflection
 @model IEnumerable<BMS.Models.RentalAgreementTermination>
 
 @{
     ViewData["Title"] = "Rental Agreement Terminations";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="page-header-container">
@@ -40,7 +53,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (Model == null || !Model.Any())
                     {
                         <tr><td colspan="7" class="text-center py-4 text-muted">No termination requests recorded.</td></tr>
                     }
@@ -48,18 +61,54 @@
                     {
                         @foreach (var t in Model)
                         {
+                            var termId = GetProp(t, "Id") ?? "0";
+
+                            var agreement = GetProp(t, "RentalAgreement", "RoomRental", "Agreement", "Lease");
+                            var tenant = GetProp(agreement, "Tenant", "User", "Customer") ?? GetProp(t, "Tenant");
+
+                            var firstName = GetProp(tenant, "FirstName", "Name", "FullName")?.ToString() ?? "";
+                            var lastName = GetProp(tenant, "LastName")?.ToString() ?? "";
+                            var tenantName = $"{firstName} {lastName}".Trim();
+
+                            if (string.IsNullOrWhiteSpace(tenantName))
+                            {
+                                var userObj = GetProp(tenant, "User", "ApplicationUser");
+                                tenantName = GetProp(userObj, "FullName", "UserName", "Email")?.ToString() ?? "Tenant";
+                            }
+
+                            var room = GetProp(agreement, "Room", "Shop");
+                            var roomNum = GetProp(room, "RoomNumber", "ShopNumber", "Number", "Name", "Code")?.ToString() ?? "N/A";
+
+                            var rawDate = GetProp(t, "TerminationDate", "RequestedTerminationDate", "RequestedDate", "CreatedDate", "CreatedAt");
+                            var formattedDate = rawDate is DateTime dt ? dt.ToString("MMM dd, yyyy") : (rawDate?.ToString() ?? "N/A");
+
+                            var reason = GetProp(t, "Reason", "Notes", "Description")?.ToString() ?? "N/A";
+
+                            var rawStatus = GetProp(t, "StatusId", "Status", "TerminationStatus", "State");
+                            int statusId = 1;
+                            if (rawStatus is int sInt)
+                            {
+                                statusId = sInt;
+                            }
+                            else if (rawStatus != null)
+                            {
+                                var statusStr = rawStatus.ToString()?.ToLower() ?? "";
+                                if (statusStr.Contains("approved") || statusStr.Contains("completed")) statusId = 2;
+                                else if (statusStr.Contains("declined") || statusStr.Contains("rejected")) statusId = 3;
+                            }
+
                             <tr>
-                                <td>#TERM-@t.Id</td>
-                                <td><span class="fw-bold">@(t.RentalAgreement?.Tenant?.FirstName + " " + t.RentalAgreement?.Tenant?.LastName)</span></td>
-                                <td><span class="badge bg-light text-dark border">Room @(t.RentalAgreement?.Room?.RoomNumber ?? "N/A")</span></td>
-                                <td>@t.TerminationDate.ToString("MMM dd, yyyy")</td>
-                                <td>@(t.Reason ?? "N/A")</td>
+                                <td>#TERM-@termId</td>
+                                <td><span class="fw-bold">@tenantName</span></td>
+                                <td><span class="badge bg-light text-dark border">Room @roomNum</span></td>
+                                <td>@formattedDate</td>
+                                <td>@reason</td>
                                 <td>
-                                    @if (t.StatusId == 2)
+                                    @if (statusId == 2)
                                     {
                                         <span class="badge-status badge-status-approved">Approved & Vacated</span>
                                     }
-                                    else if (t.StatusId == 3)
+                                    else if (statusId == 3)
                                     {
                                         <span class="badge-status badge-status-declined">Declined</span>
                                     }
@@ -69,9 +118,9 @@
                                     }
                                 </td>
                                 <td class="text-end">
-                                    @if (t.StatusId == 1)
+                                    @if (statusId == 1)
                                     {
-                                        <a asp-action="TerminationApproval" asp-route-id="@t.Id" class="btn btn-primary btn-sm px-3 rounded-2">
+                                        <a asp-action="TerminationApproval" asp-route-id="@termId" class="btn btn-primary btn-sm px-3 rounded-2">
                                             Review Approval
                                         </a>
                                     }
