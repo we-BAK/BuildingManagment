@@ -54,14 +54,14 @@
                                     <div class="fw-bold text-dark">@(s.User?.FullName ?? "Applicant")</div>
                                     <small class="text-muted">@(s.User?.Email ?? "N/A")</small>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">Shop @(s.Shop?.ShopNumber ?? "N/A")</span></td>
-                                <td>@(s.Shop?.Building?.Name ?? "N/A")</td>
-                                <td>@s.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-light text-dark border">Shop @(s.Room?.Name ?? "N/A")</span></td>
+                                <td>@(s.Room?.Floor?.Building?.Name ?? "N/A")</td>
+                                <td>@s.CeratedDate.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     @{
-                                        var statusName = s.Status?.Name ?? "Pending";
+                                        var statusName = s.RequestStatus?.Name ?? "Pending";
                                         var statusClass = statusName.ToLower().Contains("appr") ? "badge-status-approved" :
-                                                          statusName.ToLower().Contains("decl") || statusName.ToLower().Contains("reje") ? "badge-status-declined" : "badge-status-pending";
+                                        statusName.ToLower().Contains("decl") || statusName.ToLower().Contains("reje") ? "badge-status-declined" : "badge-status-pending";
                                     }
                                     <span class="badge-status @statusClass">@statusName</span>
                                 </td>

@@ -1,7 +1,27 @@
+@using System.Reflection
 @model IEnumerable<BMS.Models.RoomRentalRequest>
 
 @{
     ViewData["Title"] = "Room Rental Applications";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    string FormatDate(object? obj)
+    {
+        var rawVal = GetProp(obj, "CeratedDate", "CreatedDate", "RequestDate", "Date", "CreatedAt", "CreatedOn");
+        if (rawVal is DateTime dt) return dt.ToString("MMM dd, yyyy");
+        return "N/A";
+    }
 }
 
 <div class="page-header-container">
@@ -47,7 +67,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (Model == null || !Model.Any())
                     {
                         <tr><td colspan="7" class="text-center py-4 text-muted">No room rental inquiries submitted yet.</td></tr>
                     }
@@ -55,21 +75,33 @@
                     {
                         @foreach (var r in Model)
                         {
+                            var roomObj = GetProp(r, "Room");
+                            var userObj = GetProp(r, "User");
+                            var buildingObj = GetProp(roomObj, "Building");
+                            var statusObj = GetProp(r, "Status", "RequestStatus");
+
+                            var applicantName = GetProp(userObj, "FullName", "Name", "UserName")?.ToString() ?? "Applicant";
+                            var applicantEmail = GetProp(userObj, "Email")?.ToString() ?? "N/A";
+                            var roomNumber = GetProp(roomObj, "Name", "RoomNumber", "Number")?.ToString() ?? "N/A";
+                            var buildingName = GetProp(buildingObj, "Name", "Title")?.ToString() ?? "N/A";
+
+                            var statusName = GetProp(statusObj, "Name", "Title", "StatusName")?.ToString()
+                            ?? GetProp(r, "Status")?.ToString()
+                            ?? "Pending";
+
+                            var statusClass = statusName.ToLower().Contains("appr") ? "badge-status-approved" :
+                            statusName.ToLower().Contains("decl") || statusName.ToLower().Contains("reje") ? "badge-status-declined" : "badge-status-pending";
+
                             <tr>
                                 <td>#REQ-RM-@r.Id</td>
                                 <td>
-                                    <div class="fw-bold text-dark">@(r.User?.FullName ?? "Applicant")</div>
-                                    <small class="text-muted">@(r.User?.Email ?? "N/A")</small>
+                                    <div class="fw-bold text-dark">@applicantName</div>
+                                    <small class="text-muted">@applicantEmail</small>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">Room @(r.Room?.RoomNumber ?? "N/A")</span></td>
-                                <td>@(r.Room?.Building?.Name ?? "N/A")</td>
-                                <td>@r.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                <td><span class="badge bg-light text-dark border">Room @roomNumber</span></td>
+                                <td>@buildingName</td>
+                                <td>@FormatDate(r)</td>
                                 <td>
-                                    @{
-                                        var statusName = r.Status?.Name ?? "Pending";
-                                        var statusClass = statusName.ToLower().Contains("appr") ? "badge-status-approved" :
-                                                          statusName.ToLower().Contains("decl") || statusName.ToLower().Contains("reje") ? "badge-status-declined" : "badge-status-pending";
-                                    }
                                     <span class="badge-status @statusClass">@statusName</span>
                                 </td>
                                 <td class="text-end">

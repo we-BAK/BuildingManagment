@@ -1,7 +1,35 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.DashboardViewModel
 
 @{
     ViewData["Title"] = "Executive Dashboard";
+
+    // Dynamic helper functions to safely retrieve entity property values regardless of naming conventions
+    object? GetPropertyValue(object? obj, params string[] propertyNames)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var propName in propertyNames)
+        {
+            var prop = type.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    string FormatEntityDate(object? obj)
+    {
+        var rawVal = GetPropertyValue(obj, "CeratedDate", "CreatedDate", "RequestDate", "Date", "CreatedAt", "CreatedOn");
+        if (rawVal is DateTime dt) return dt.ToString("MMM dd, yyyy");
+        return "N/A";
+    }
+
+    string FormatEntityDateTime(object? obj)
+    {
+        var rawVal = GetPropertyValue(obj, "CeratedDate", "CreatedDate", "RequestDate", "Date", "CreatedAt", "CreatedOn");
+        if (rawVal is DateTime dt) return dt.ToString("g");
+        return "N/A";
+    }
 }
 
 <div class="page-header-container">
@@ -77,7 +105,7 @@
                 <a asp-controller="RentalRequests" asp-action="Index" class="btn btn-link btn-sm text-decoration-none p-0 fw-semibold">View All</a>
             </div>
             <div class="bms-card-body p-0">
-                @if (!Model.PendingRoomRequests.Any())
+                @if (Model.PendingRoomRequests == null || !Model.PendingRoomRequests.Any())
                 {
                     <div class="p-4 text-center text-muted">
                         <i class="bi bi-check2-circle fs-2 d-block mb-2 text-success"></i>
@@ -99,10 +127,13 @@
                             <tbody>
                                 @foreach (var req in Model.PendingRoomRequests)
                                 {
+                                    var roomName = GetPropertyValue(req.Room, "Name", "RoomNumber", "Number")?.ToString() ?? "N/A";
+                                    var userName = GetPropertyValue(req.User, "FullName", "Name", "UserName")?.ToString() ?? "Applicant";
+
                                     <tr>
-                                        <td class="fw-semibold">@(req.User?.FullName ?? "Applicant")</td>
-                                        <td><span class="badge bg-light text-dark border">Room @(req.Room?.RoomNumber ?? "N/A")</span></td>
-                                        <td>@req.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                        <td class="fw-semibold">@userName</td>
+                                        <td><span class="badge bg-light text-dark border">Room @roomName</span></td>
+                                        <td>@FormatEntityDate(req)</td>
                                         <td>
                                             <a asp-controller="RentalRequests" asp-action="Review" asp-route-id="@req.Id" asp-route-type="Room" class="btn btn-outline-primary btn-sm rounded-2">
                                                 Review
@@ -125,7 +156,7 @@
                 <h5 class="bms-card-title"><i class="bi bi-bell me-2 text-warning"></i> Recent System Alerts</h5>
             </div>
             <div class="bms-card-body p-0">
-                @if (!Model.RecentNotifications.Any())
+                @if (Model.RecentNotifications == null || !Model.RecentNotifications.Any())
                 {
                     <div class="p-4 text-center text-muted">
                         <i class="bi bi-bell-slash fs-2 d-block mb-2 opacity-50"></i>
@@ -137,12 +168,15 @@
                     <ul class="list-group list-group-flush">
                         @foreach (var note in Model.RecentNotifications)
                         {
+                            var title = GetPropertyValue(note, "Title", "Name", "Header", "Subject")?.ToString() ?? "Alert";
+                            var description = GetPropertyValue(note, "Message", "Description", "Detail", "Content", "Text")?.ToString() ?? "No details provided.";
+
                             <li class="list-group-item p-3 border-bottom">
                                 <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                                    <h6 class="mb-0 fw-semibold text-dark">@(note.Title ?? "Alert")</h6>
-                                    <small class="text-muted">@note.CreatedDate.ToString("g")</small>
+                                    <h6 class="mb-0 fw-semibold text-dark">@title</h6>
+                                    <small class="text-muted">@FormatEntityDateTime(note)</small>
                                 </div>
-                                <p class="mb-0 text-muted fs-sm">@(note.Detail ?? "No details provided.")</p>
+                                <p class="mb-0 text-muted fs-sm">@description</p>
                             </li>
                         }
                     </ul>
