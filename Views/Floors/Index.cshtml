@@ -7,7 +7,7 @@
 <div class="page-header-container">
     <div>
         <h1 class="page-header-title">Floors Directory</h1>
-        <p class="page-header-subtitle">Overview of building levels, floor numbers, and floor-level pricing configurations</p>
+        <p class="page-header-subtitle">Overview of building levels and floor-level pricing configurations</p>
     </div>
     <div>
         <a asp-action="Create" class="btn btn-bms-primary btn-sm">
@@ -32,8 +32,7 @@
                     <tr>
                         <th>Floor Level</th>
                         <th>Building</th>
-                        <th>Rooms Count</th>
-                        <th>Shops Count</th>
+                        <th>Total Units / Rooms</th>
                         <th>Base Price</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
@@ -42,21 +41,19 @@
                 <tbody>
                     @if (!Model.Any())
                     {
-                        <tr><td colspan="7" class="text-center py-4 text-muted">No floors configured. Click "Add New Floor" to start.</td></tr>
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No floors configured. Click "Add New Floor" to start.</td></tr>
                     }
                     else
                     {
                         @foreach (var f in Model)
                         {
-                            var latestPrice = f.FloorPrices.FirstOrDefault(fp => !fp.IsDeleted);
+                            var latestPrice = f.FloorPrices?.FirstOrDefault(fp => !fp.IsDeleted);
                             <tr>
                                 <td>
                                     <div class="fw-bold text-dark fs-6">@f.Name</div>
-                                    <small class="text-muted">Floor Number: @f.FloorNumber</small>
                                 </td>
                                 <td><span class="badge bg-light text-dark border"><i class="bi bi-building me-1"></i>@(f.Building?.Name ?? "N/A")</span></td>
-                                <td><span class="fw-semibold">@f.Rooms.Count</span> Rooms</td>
-                                <td><span class="fw-semibold">@f.Shops.Count</span> Shops</td>
+                                <td><span class="fw-semibold">@(f.Rooms?.Count ?? 0)</span> Units</td>
                                 <td>
                                     @if (latestPrice != null)
                                     {

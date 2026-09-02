@@ -63,7 +63,7 @@
                         <thead>
                             <tr>
                                 <th>Attribute Title</th>
-                                <th>Detail / Value</th>
+                                <th>Floors</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -77,8 +77,8 @@
                                 @foreach (var spec in Model.Specifications)
                                 {
                                     <tr>
-                                        <td class="fw-bold text-dark">@spec.Title</td>
-                                        <td><span class="badge bg-light text-primary border fs-6">@spec.Detail</span></td>
+                                        <td class="fw-bold text-dark">@spec.Name</td>
+                                        <td><span class="badge bg-light text-primary border fs-6">@spec.NumberOfFloor Floors</span></td>
                                         <td><span class="badge-status badge-status-active">Active</span></td>
                                     </tr>
                                 }

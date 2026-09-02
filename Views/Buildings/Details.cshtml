@@ -7,7 +7,7 @@
 <div class="page-header-container">
     <div>
         <h1 class="page-header-title">@Model.Building.Name</h1>
-        <p class="page-header-subtitle"><i class="bi bi-geo-alt me-1"></i> @(Model.Building.Location ?? "No location specified") | Type: <strong>@(Model.Building.BuildingType?.Name ?? "General")</strong></p>
+        <p class="page-header-subtitle"><i class="bi bi-geo-alt me-1"></i> @(Model.Building.Location?.Name ?? "No location specified") | Type: <strong>@(Model.Building.BuildingType?.Name ?? "General")</strong></p>
     </div>
     <div class="d-flex gap-2">
         <a asp-action="Edit" asp-route-id="@Model.Building.Id" class="btn btn-outline-primary btn-sm rounded-3">
@@ -66,8 +66,8 @@
                     <table class="bms-table">
                         <thead>
                             <tr>
-                                <th>Room #</th>
-                                <th>Bedrooms / Baths</th>
+                                <th>Room Name</th>
+                                <th>Dimensions (W x L)</th>
                                 <th>Size</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -83,10 +83,10 @@
                                 @foreach (var rm in Model.Rooms)
                                 {
                                     <tr>
-                                        <td class="fw-bold">Room @rm.RoomNumber</td>
-                                        <td>@rm.Bedrooms Beds / @rm.Bathrooms Baths</td>
-                                        <td>@rm.Size sq ft</td>
-                                        <td><span class="badge bg-light text-dark border">@(rm.RoomStatue?.Name ?? "Vacant")</span></td>
+                                        <td class="fw-bold">Room @rm.Name</td>
+                                        <td>@rm.Width m x @rm.Length m</td>
+                                        <td>@rm.SizeInm2 m²</td>
+                                        <td><span class="badge bg-light text-dark border">@(rm.RoomStatus?.Name ?? "Vacant")</span></td>
                                         <td><a asp-controller="Rooms" asp-action="Details" asp-route-id="@rm.Id" class="btn btn-sm btn-light border">Details</a></td>
                                     </tr>
                                 }
@@ -107,27 +107,25 @@
                     <table class="bms-table">
                         <thead>
                             <tr>
-                                <th>Shop #</th>
-                                <th>Facade Type</th>
-                                <th>Size</th>
-                                <th>Status</th>
+                                <th>Shop Name</th>
+                                <th>Business Area</th>
+                                <th>Room Location</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (!Model.Shops.Any())
                             {
-                                <tr><td colspan="5" class="text-center py-3 text-muted">No retail shop spaces created in this building.</td></tr>
+                                <tr><td colspan="4" class="text-center py-3 text-muted">No retail shop spaces created in this building.</td></tr>
                             }
                             else
                             {
                                 @foreach (var sh in Model.Shops)
                                 {
                                     <tr>
-                                        <td class="fw-bold">Shop @sh.ShopNumber</td>
-                                        <td>@(sh.FacadeType ?? "Standard")</td>
-                                        <td>@sh.Size sq ft</td>
-                                        <td><span class="badge bg-light text-dark border">@(sh.ShopStatus?.Name ?? "Vacant")</span></td>
+                                        <td class="fw-bold">@sh.Name</td>
+                                        <td>@(sh.BusinessArea?.Name ?? "N/A")</td>
+                                        <td>@(sh.ShopLocations?.FirstOrDefault()?.Room?.Name ?? "N/A")</td>
                                         <td><a asp-controller="Shops" asp-action="Details" asp-route-id="@sh.Id" class="btn btn-sm btn-light border">Details</a></td>
                                     </tr>
                                 }
@@ -157,8 +155,8 @@
                         @foreach (var spec in Model.Specifications)
                         {
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
-                                <span class="fw-semibold text-dark">@spec.Title</span>
-                                <span class="badge bg-primary-subtle text-primary border">@spec.Detail</span>
+                                <span class="fw-semibold text-dark">@spec.Name</span>
+                                <span class="badge bg-primary-subtle text-primary border">@spec.NumberOfFloor Floors</span>
                             </li>
                         }
                     </ul>
@@ -182,7 +180,7 @@
                         @foreach (var img in Model.Images.Take(4))
                         {
                             <div class="col-6">
-                                <img src="@img.Photo" alt="Building image" class="img-fluid rounded-3 border" style="height: 90px; width: 100%; object-fit: cover;" />
+                                <img src="@img.Url" alt="Building image" class="img-fluid rounded-3 border" style="height: 90px; width: 100%; object-fit: cover;" />
                             </div>
                         }
                     </div>

@@ -34,7 +34,7 @@
                         <th>Classification Type</th>
                         <th>Location</th>
                         <th>Floors</th>
-                        <th>Total Units</th>
+                        <th>Total Rooms</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -62,9 +62,9 @@
                                         <i class="bi bi-tag me-1 text-primary"></i>@(b.BuildingType?.Name ?? "Unclassified")
                                     </span>
                                 </td>
-                                <td><i class="bi bi-geo-alt text-muted me-1"></i>@(b.Location ?? "N/A")</td>
+                                <td><i class="bi bi-geo-alt text-muted me-1"></i>@(b.Location?.Name ?? "N/A")</td>
                                 <td><span class="fw-semibold">@b.Floors.Count</span> Floors</td>
-                                <td><span class="fw-semibold">@(b.Rooms.Count + b.Shops.Count)</span> Units (@b.Rooms.Count Rooms, @b.Shops.Count Shops)</td>
+                                <td><span class="fw-semibold">@b.Floors.Sum(f => f.Rooms.Count)</span> Rooms</td>
                                 <td>
                                     @if (b.IsActive)
                                     {
