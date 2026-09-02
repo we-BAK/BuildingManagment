@@ -1,7 +1,20 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.TerminationRequestViewModel
 
 @{
     ViewData["Title"] = "Request Early Lease Termination";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="row justify-content-center">
@@ -29,9 +42,24 @@
                             <option value="">-- Select Active Lease --</option>
                             @if (ViewBag.ActiveRentals != null)
                             {
-                                @foreach (var r in (IEnumerable<BMS.Models.RoomRental>)ViewBag.ActiveRentals)
+                                @foreach (var r in (IEnumerable<object>)ViewBag.ActiveRentals)
                                 {
-                                    <option value="@r.Id">Room @(r.Room?.RoomNumber) - @(r.Tenant?.FirstName) @(r.Tenant?.LastName)</option>
+                                    var rentalId = GetProp(r, "Id") ?? "0";
+                                    var room = GetProp(r, "Room", "Shop");
+                                    var roomNum = GetProp(room, "RoomNumber", "ShopNumber", "Number", "Name", "Code")?.ToString() ?? "N/A";
+
+                                    var tenant = GetProp(r, "Tenant", "User", "Customer");
+                                    var firstName = GetProp(tenant, "FirstName", "Name", "FullName")?.ToString() ?? "";
+                                    var lastName = GetProp(tenant, "LastName")?.ToString() ?? "";
+                                    var tenantName = $"{firstName} {lastName}".Trim();
+
+                                    if (string.IsNullOrWhiteSpace(tenantName))
+                                    {
+                                        var userObj = GetProp(tenant, "User", "ApplicationUser");
+                                        tenantName = GetProp(userObj, "FullName", "UserName", "Email")?.ToString() ?? "Tenant";
+                                    }
+
+                                    <option value="@rentalId">Room @roomNum - @tenantName</option>
                                 }
                             }
                         </select>
