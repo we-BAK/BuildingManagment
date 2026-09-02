@@ -92,6 +92,63 @@
                                     <li><a class="dropdown-item py-2" asp-controller="Tenants" asp-action="Create"><i class="bi bi-person-plus me-2"></i> Register Tenant</a></li>
                                 </ul>
                             </li>
+                            
+                            <!-- Module 4: Finance & Inventory Dropdown -->
+                            <li class="nav-item dropdown me-1">
+                                <a class="nav-link dropdown-toggle px-3" href="#" id="financeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-wallet2 me-1 text-warning"></i> Finance & Inventory
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="financeDropdown">
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Financial Management</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Finance" asp-action="Index"><i class="bi bi-receipt me-2"></i> Invoices</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Finance" asp-action="RoomRentalPayments"><i class="bi bi-cash-coin me-2"></i> Room Rental Payments</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Inventory</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Inventory" asp-action="ShopItems"><i class="bi bi-box-seam me-2"></i> Shop Items</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Inventory" asp-action="MaintenanceItems"><i class="bi bi-tools me-2"></i> Maintenance Items</a></li>
+                                </ul>
+                            </li>
+
+                            <!-- Module 5: Maintenance & Facilities Dropdown -->
+                            <li class="nav-item dropdown me-1">
+                                <a class="nav-link dropdown-toggle px-3" href="#" id="maintenanceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-wrench-adjustable me-1 text-danger"></i> Maintenance
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="maintenanceDropdown">
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Requests</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Create"><i class="bi bi-plus-circle me-2"></i> Submit Request</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Index"><i class="bi bi-card-list me-2"></i> View Requests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Management</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Allocations"><i class="bi bi-person-workspace me-2"></i> Allocations</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Reports"><i class="bi bi-graph-up me-2"></i> Reports</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Configuration</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Types"><i class="bi bi-tags me-2"></i> Maintenance Types</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Maintenance" asp-action="Statuses"><i class="bi bi-arrow-repeat me-2"></i> Maintenance Statuses</a></li>
+                                </ul>
+                            </li>
+                            
+                            <!-- Module 6: Administration Dropdown -->
+                            <li class="nav-item dropdown me-1">
+                                <a class="nav-link dropdown-toggle px-3" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear-fill me-1 text-secondary"></i> Admin
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-sm rounded-3 mt-2" aria-labelledby="adminDropdown">
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">User Management</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Users" asp-action="Index"><i class="bi bi-people-fill me-2"></i> System Users</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Users" asp-action="Logons"><i class="bi bi-shield-lock me-2"></i> User Auth Logs</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Security</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Roles" asp-action="Index"><i class="bi bi-person-badge me-2"></i> Roles & Permissions</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header text-uppercase fs-xs">Organization</h6></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Organizations"><i class="bi bi-building-add me-2"></i> Branches</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Locations"><i class="bi bi-geo-alt me-2"></i> Locations</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Cities"><i class="bi bi-pin-map me-2"></i> Cities</a></li>
+                                    <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="BusinessAreas"><i class="bi bi-briefcase me-2"></i> Business Areas</a></li>
+                                </ul>
+                            </li>
                         </ul>
 
                         <ul class="navbar-nav align-items-center">

@@ -1,0 +1,73 @@
+@model BMS.Models.Invoice
+@{
+    ViewData["Title"] = "Create Invoice";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-receipt text-primary me-2"></i>Create Invoice</h1>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Back to Invoices
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="CreateInvoice">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="UserId" class="form-label fw-medium">User / Tenant <span class="text-danger">*</span></label>
+                            <select asp-for="UserId" class="form-select" asp-items="ViewBag.Users" required>
+                                <option value="">-- Select User --</option>
+                            </select>
+                            <span asp-validation-for="UserId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Amount" class="form-label fw-medium">Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Amount" class="form-control" type="number" step="0.01" required />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="InvoiceDate" class="form-label fw-medium">Invoice Date <span class="text-danger">*</span></label>
+                            <input asp-for="InvoiceDate" class="form-control" type="date" value="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")" required />
+                            <span asp-validation-for="InvoiceDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DueDate" class="form-label fw-medium">Due Date <span class="text-danger">*</span></label>
+                            <input asp-for="DueDate" class="form-control" type="date" required />
+                            <span asp-validation-for="DueDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="InvoiceStatusId" class="form-label fw-medium">Status <span class="text-danger">*</span></label>
+                        <select asp-for="InvoiceStatusId" class="form-select" asp-items="ViewBag.InvoiceStatuses" required>
+                            <option value="">-- Select Status --</option>
+                        </select>
+                        <span asp-validation-for="InvoiceStatusId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

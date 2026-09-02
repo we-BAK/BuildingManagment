@@ -1,0 +1,86 @@
+@model IEnumerable<BMS.Models.Invoice>
+@{
+    ViewData["Title"] = "Invoices";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-receipt text-primary me-2"></i>Invoices</h1>
+    <a asp-action="CreateInvoice" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Create Invoice
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Invoice Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No invoices found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-medium">#@item.Id</td>
+                                <td>@(item.User?.FullName ?? "N/A")</td>
+                                <td class="fw-semibold">@item.Amount.ToString("C")</td>
+                                <td>@item.InvoiceDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @item.DueDate.ToString("MMM dd, yyyy")
+                                    @if (item.DueDate < DateOnly.FromDateTime(DateTime.Today) && item.InvoiceStatus?.Name != "Paid")
+                                    {
+                                        <span class="badge bg-danger ms-2">Overdue</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = item.InvoiceStatus?.Name switch
+                                        {
+                                            "Paid" => "bg-success",
+                                            "Unpaid" => "bg-warning text-dark",
+                                            "Overdue" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @statusClass rounded-pill">@(item.InvoiceStatus?.Name ?? "Unknown")</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="InvoiceDetails" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="View Details">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

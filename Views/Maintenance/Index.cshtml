@@ -1,0 +1,81 @@
+@model IEnumerable<BMS.Models.MaintenanceRequest>
+@{
+    ViewData["Title"] = "Maintenance Requests";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-card-list text-primary me-2"></i>Maintenance Requests</h1>
+    <a asp-action="Create" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Submit Request
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>User</th>
+                        <th>Room</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No maintenance requests found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-medium">#@item.Id</td>
+                                <td>@(item.User?.FullName ?? "N/A")</td>
+                                <td><i class="bi bi-door-closed text-muted me-1"></i>@(item.Room?.Name ?? "N/A")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@(item.MaintenanceType?.Name ?? "N/A")</span>
+                                </td>
+                                <td class="text-truncate" style="max-width: 200px;" title="@item.Description">
+                                    @item.Description
+                                </td>
+                                <td>@item.DateSubmitted.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @{
+                                        var statusClass = item.MaintenanceStatus?.Name switch
+                                        {
+                                            "Submitted" => "bg-primary",
+                                            "In Progress" => "bg-warning text-dark",
+                                            "Completed" => "bg-success",
+                                            "Cancelled" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @statusClass rounded-pill">@(item.MaintenanceStatus?.Name ?? "Unknown")</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

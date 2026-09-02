@@ -1,0 +1,64 @@
+@model IEnumerable<BMS.Models.MaintenanceRequestAllocation>
+@{
+    ViewData["Title"] = "Maintenance Allocations";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-person-workspace text-primary me-2"></i>Allocated Tasks</h1>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Request ID</th>
+                        <th>Room</th>
+                        <th>Assigned To</th>
+                        <th>Allocated Date</th>
+                        <th>Completed Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-clipboard-x fs-2 d-block mb-2"></i>
+                                No allocations found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-medium">
+                                    <a asp-action="Index" class="text-decoration-none">#@item.MaintenanceRequestId</a>
+                                </td>
+                                <td>
+                                    <i class="bi bi-door-open text-muted me-1"></i>@(item.MaintenanceRequest?.Room?.Name ?? "N/A")
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-primary">
+                                        <i class="bi bi-person-badge me-1"></i>@(item.BuildingEmployee?.Employee?.FullName ?? "N/A")
+                                    </span>
+                                </td>
+                                <td>@item.AllocatedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    @(item.CompletedDate.HasValue ? item.CompletedDate.Value.ToString("MMM dd, yyyy HH:mm") : "-")
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary rounded-pill">@(item.AllocationStatus?.Name ?? "Pending")</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

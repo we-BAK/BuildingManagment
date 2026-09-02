@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Maintenance Reports";
+    
+    var typesBreakdown = ViewBag.TypesBreakdown as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var totalRequests = ViewBag.TotalRequests ?? 0;
+    var completedRequests = ViewBag.CompletedRequests ?? 0;
+    var pendingRequests = ViewBag.PendingRequests ?? 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-graph-up text-primary me-2"></i>Maintenance Reports</h1>
+</div>
+
+<div class="row mb-4">
+    <!-- Total Requests Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-0 border-start border-4 border-primary shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                            Total Requests</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@totalRequests</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clipboard-data fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Requests Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-0 border-start border-4 border-success shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                            Completed</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@completedRequests</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Requests Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-0 border-start border-4 border-warning shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                            Pending / In Progress</div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">@pendingRequests</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-hourglass-split fs-2 text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between border-bottom">
+                <h6 class="m-0 fw-bold text-primary">Requests by Type</h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    @if (!typesBreakdown.Any())
+                    {
+                        <li class="list-group-item py-4 text-center text-muted">No data available</li>
+                    }
+                    else
+                    {
+                        foreach (var kvp in typesBreakdown)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div><i class="bi bi-tag text-muted me-2"></i>@kvp.Key</div>
+                                <span class="badge bg-primary rounded-pill">@kvp.Value</span>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

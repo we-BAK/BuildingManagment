@@ -1,0 +1,59 @@
+@model IEnumerable<BMS.Models.RoomRentalPayment>
+@{
+    ViewData["Title"] = "Room Rental Payments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-cash-coin text-primary me-2"></i>Room Rental Payments</h1>
+    <a asp-controller="RoomRentals" asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+        <i class="bi bi-key me-1"></i> View Leases
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Invoice #</th>
+                        <th>Rental ID</th>
+                        <th>Amount</th>
+                        <th>Paid Date</th>
+                        <th>Payment Type</th>
+                        <th>Mode</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-cash fs-2 d-block mb-2"></i>
+                                No room rental payments found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-medium text-primary">@item.InvoiceNumber</td>
+                                <td>#@item.RoomRentalId</td>
+                                <td class="fw-bold text-success">@item.TotalAmount.ToString("C")</td>
+                                <td>@item.PaidDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@(item.PaymentType?.Name ?? "N/A")</span>
+                                </td>
+                                <td>
+                                    <span class="badge border border-secondary text-secondary">@(item.PaymentMode?.Name ?? "N/A")</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

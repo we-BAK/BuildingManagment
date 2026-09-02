@@ -1,0 +1,63 @@
+@model IEnumerable<BMS.Models.ShopItem>
+@{
+    ViewData["Title"] = "Shop Items";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-box-seam text-primary me-2"></i>Shop Inventory</h1>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Item Name</th>
+                        <th>Shop</th>
+                        <th>Balance / Stock</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No shop items found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-medium text-dark">
+                                    <i class="bi bi-tag text-secondary me-2"></i>@(item.Item?.Name ?? "N/A")
+                                </td>
+                                <td>
+                                    <i class="bi bi-shop text-muted me-1"></i>@(item.Shop?.Name ?? $"Shop #{item.ShopId}")
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@item.Balance</span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success rounded-pill">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary rounded-pill">Inactive</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
