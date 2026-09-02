@@ -1,7 +1,20 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.RoomPriceViewModel
 
 @{
     ViewData["Title"] = $"Rent Pricing: Room {Model.RoomNumber}";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="page-header-container">
@@ -67,7 +80,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!Model.PriceHistory.Any())
+                            @if (Model.PriceHistory == null || !Model.PriceHistory.Any())
                             {
                                 <tr><td colspan="3" class="text-center py-4 text-muted">No rent pricing history configured for this room yet.</td></tr>
                             }
@@ -75,9 +88,14 @@
                             {
                                 @foreach (var p in Model.PriceHistory)
                                 {
+                                    var rawPrice = GetProp(p, "Price", "MonthlyRent", "Amount", "Cost", "Value", "RentPrice");
+                                    var priceVal = rawPrice != null ? Convert.ToDecimal(rawPrice) : 0m;
+
+                                    var priceId = GetProp(p, "Id") ?? "0";
+
                                     <tr>
-                                        <td>#RP-@p.Id</td>
-                                        <td class="fw-bold text-success fs-6">$@p.Price.ToString("N2")</td>
+                                        <td>#RP-@priceId</td>
+                                        <td class="fw-bold text-success fs-6">$@priceVal.ToString("N2")</td>
                                         <td><span class="badge-status badge-status-active">Active</span></td>
                                     </tr>
                                 }
