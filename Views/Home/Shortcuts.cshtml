@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Quick Access Dashboard";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">Shortcut Launcher</h1>
+        <p class="page-header-subtitle">Quick access links to daily operational workflows and modules</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Property Management -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Room" asp-action="Index" class="text-decoration-none">
+            <div class="bms-card h-100 p-4 text-center hover-shadow border-0 shadow-sm transition">
+                <div class="p-3 bg-primary-subtle text-primary rounded-circle d-inline-block mb-3">
+                    <i class="bi bi-building fs-2"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">Room Directory</h6>
+                <small class="text-muted">Manage residential & shop units</small>
+            </div>
+        </a>
+    </div>
+
+    <!-- Tenant Directory -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Tenant" asp-action="Index" class="text-decoration-none">
+            <div class="bms-card h-100 p-4 text-center hover-shadow border-0 shadow-sm transition">
+                <div class="p-3 bg-success-subtle text-success rounded-circle d-inline-block mb-3">
+                    <i class="bi bi-people fs-2"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">Tenants</h6>
+                <small class="text-muted">View active tenant contracts</small>
+            </div>
+        </a>
+    </div>
+
+    <!-- Lease Terminations -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Termination" asp-action="Index" class="text-decoration-none">
+            <div class="bms-card h-100 p-4 text-center hover-shadow border-0 shadow-sm transition">
+                <div class="p-3 bg-danger-subtle text-danger rounded-circle d-inline-block mb-3">
+                    <i class="bi bi-file-earmark-x fs-2"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">Terminations</h6>
+                <small class="text-muted">Review contract ending requests</small>
+            </div>
+        </a>
+    </div>
+
+    <!-- Communications -->
+    <div class="col-md-6 col-lg-3">
+        <a asp-controller="Communications" asp-action="Chat" class="text-decoration-none">
+            <div class="bms-card h-100 p-4 text-center hover-shadow border-0 shadow-sm transition">
+                <div class="p-3 bg-warning-subtle text-warning rounded-circle d-inline-block mb-3">
+                    <i class="bi bi-chat-dots fs-2"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">Internal Messages</h6>
+                <small class="text-muted">Communication center</small>
+            </div>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,119 @@
+﻿@using System.Reflection
+@model dynamic
+
+@{
+    ViewData["Title"] = "System Settings & Configurations";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    var appName = GetProp(Model, "ApplicationName", "AppName")?.ToString() ?? "Building Management System";
+    var taxRate = GetProp(Model, "DefaultTaxRate", "TaxRate")?.ToString() ?? "15.0";
+    var currency = GetProp(Model, "CurrencySymbol", "Currency")?.ToString() ?? "ETB";
+    var email = GetProp(Model, "SupportEmail", "ContactEmail")?.ToString() ?? "support@bms.com";
+    var phone = GetProp(Model, "SupportPhone", "ContactPhone")?.ToString() ?? "+251 911 000 000";
+}
+
+<div class="page-header-container">
+    <div>
+        <h1 class="page-header-title">System Settings</h1>
+        <p class="page-header-subtitle">Global configurations, financial parameters, and business metadata</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-sliders me-2 text-primary"></i> General Configuration</h5>
+            </div>
+            <div class="bms-card-body">
+                <form asp-action="SaveSettings" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Application Title</label>
+                                <input type="text" name="ApplicationName" value="@appName" class="form-control" style="height: 48px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Currency Label / Symbol</label>
+                                <input type="text" name="CurrencySymbol" value="@currency" class="form-control" style="height: 48px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Default VAT / Tax Rate (%)</label>
+                                <input type="number" step="0.01" name="DefaultTaxRate" value="@taxRate" class="form-control" style="height: 48px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Official Contact Phone</label>
+                                <input type="text" name="SupportPhone" value="@phone" class="form-control" style="height: 48px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group-custom">
+                                <label class="form-label-custom">Support / Admin Email</label>
+                                <input type="email" name="SupportEmail" value="@email" class="form-control" style="height: 48px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-bms-primary px-4">
+                            <i class="bi bi-save me-1"></i> Save Configurations
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="bms-card">
+            <div class="bms-card-header">
+                <h5 class="bms-card-title"><i class="bi bi-shield-check me-2 text-dark"></i> System Status</h5>
+            </div>
+            <div class="bms-card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Environment</span>
+                        <span class="fw-bold text-dark">Production</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Database Engine</span>
+                        <span class="fw-bold text-dark">Microsoft SQL Server</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Framework</span>
+                        <span class="fw-bold text-dark">ASP.NET Core MVC</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">App Version</span>
+                        <span class="fw-bold text-dark">v2.4.0</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
