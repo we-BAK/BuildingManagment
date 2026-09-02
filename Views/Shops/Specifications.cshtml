@@ -1,7 +1,20 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.ShopSpecViewModel
 
 @{
     ViewData["Title"] = $"Technical Requirements: Shop {Model.ShopNumber}";
+
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
 }
 
 <div class="page-header-container">
@@ -55,7 +68,7 @@
     <div class="col-lg-8">
         <div class="bms-card">
             <div class="bms-card-header">
-                <h5 class="bms-card-title"><i class="bi bi-cpu me-2 text-dark"></i> Configured Specifications (@Model.ExistingSpecifications.Count)</h5>
+                <h5 class="bms-card-title"><i class="bi bi-cpu me-2 text-dark"></i> Configured Specifications (@(Model.ExistingSpecifications?.Count ?? 0))</h5>
             </div>
             <div class="bms-card-body p-0">
                 <div class="table-responsive">
@@ -68,7 +81,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!Model.ExistingSpecifications.Any())
+                            @if (Model.ExistingSpecifications == null || !Model.ExistingSpecifications.Any())
                             {
                                 <tr><td colspan="3" class="text-center py-4 text-muted">No technical specs configured for this shop unit yet.</td></tr>
                             }
@@ -76,9 +89,12 @@
                             {
                                 @foreach (var spec in Model.ExistingSpecifications)
                                 {
+                                    var specName = GetProp(spec, "Name", "FeatureName", "Title", "Key")?.ToString() ?? "Specification";
+                                    var specDetail = GetProp(spec, "FeatureValue", "Value", "Detail", "Description", "SpecDetail")?.ToString() ?? "N/A";
+
                                     <tr>
-                                        <td class="fw-bold text-dark">@spec.Name</td>
-                                        <td><span class="badge bg-light text-primary border fs-6">@spec.NumberOfFloor</span></td>
+                                        <td class="fw-bold text-dark">@specName</td>
+                                        <td><span class="badge bg-light text-primary border fs-6">@specDetail</span></td>
                                         <td><span class="badge-status badge-status-active">Active</span></td>
                                     </tr>
                                 }
