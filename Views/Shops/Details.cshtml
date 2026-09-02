@@ -1,22 +1,61 @@
+@using System.Reflection
 @model BMS.Models.ViewModels.ShopDetailsViewModel
 
 @{
-    ViewData["Title"] = $"Shop {Model.Shop.ShopNumber} Details";
+    object? GetProp(object? obj, params string[] names)
+    {
+        if (obj == null) return null;
+        var type = obj.GetType();
+        foreach (var name in names)
+        {
+            var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop != null) return prop.GetValue(obj);
+        }
+        return null;
+    }
+
+    string FormatDate(object? obj, params string[] propNames)
+    {
+        var rawVal = GetProp(obj, propNames);
+        if (rawVal is DateTime dt) return dt.ToString("MMM dd, yyyy");
+        return "N/A";
+    }
+
+    var shopObj = Model?.Shop;
+
+    var shopNumber = GetProp(shopObj, "Name", "ShopNumber", "Number", "ShopNo")?.ToString() ?? "N/A";
+    var floorObj = GetProp(shopObj, "Floor");
+    var buildingObj = GetProp(shopObj, "Building") ?? GetProp(floorObj, "Building");
+
+    var buildingName = GetProp(buildingObj, "Name", "Title")?.ToString() ?? "Building";
+
+    var shopStatusObj = GetProp(shopObj, "ShopStatus", "ShopStatue", "Status");
+    var statusName = GetProp(shopStatusObj, "Name", "Title")?.ToString() ?? GetProp(shopObj, "Status")?.ToString() ?? "Vacant";
+
+    var facadeType = GetProp(shopObj, "FacadeType", "Frontage", "Facade", "Type")?.ToString() ?? "Glass Front";
+    var sizeSqFt = GetProp(shopObj, "Size", "Area", "SqFt", "SquareFeet")?.ToString() ?? "0";
+
+    var rawPrice = GetProp(shopObj, "Price", "MonthlyRent", "RentAmount", "Cost");
+    var priceVal = rawPrice != null ? Convert.ToDecimal(rawPrice) : 0m;
+
+    var shopId = GetProp(shopObj, "Id");
+
+    ViewData["Title"] = $"Shop {shopNumber} Details";
 }
 
 <div class="page-header-container">
     <div>
-        <h1 class="page-header-title">Shop @Model.Shop.ShopNumber</h1>
-        <p class="page-header-subtitle"><i class="bi bi-building me-1"></i> @(Model.Shop.Building?.Name ?? "Building") | Status: <strong>@(Model.Shop.ShopStatus?.Name ?? "Vacant")</strong></p>
+        <h1 class="page-header-title">Shop @shopNumber</h1>
+        <p class="page-header-subtitle"><i class="bi bi-building me-1"></i> @buildingName | Status: <strong>@statusName</strong></p>
     </div>
     <div class="d-flex gap-2">
-        <a asp-action="Edit" asp-route-id="@Model.Shop.Id" class="btn btn-outline-primary btn-sm rounded-3">
+        <a asp-action="Edit" asp-route-id="@shopId" class="btn btn-outline-primary btn-sm rounded-3">
             <i class="bi bi-pencil me-1"></i> Edit Shop
         </a>
-        <a asp-action="Images" asp-route-id="@Model.Shop.Id" class="btn btn-outline-info btn-sm rounded-3">
+        <a asp-action="Images" asp-route-id="@shopId" class="btn btn-outline-info btn-sm rounded-3">
             <i class="bi bi-image me-1"></i> Storefront Photos
         </a>
-        <a asp-action="Specifications" asp-route-id="@Model.Shop.Id" class="btn btn-outline-dark btn-sm rounded-3">
+        <a asp-action="Specifications" asp-route-id="@shopId" class="btn btn-outline-dark btn-sm rounded-3">
             <i class="bi bi-sliders me-1"></i> Technical Specs
         </a>
         <a asp-action="Index" class="btn btn-secondary btn-sm rounded-3">
@@ -36,15 +75,15 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Facade Frontage</span>
-                        <span class="fw-bold">@(Model.Shop.FacadeType ?? "Glass Front")</span>
+                        <span class="fw-bold">@facadeType</span>
                     </li>
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Retail Area</span>
-                        <span class="fw-bold">@Model.Shop.Size sq ft</span>
+                        <span class="fw-bold">@sizeSqFt sq ft</span>
                     </li>
                     <li class="list-group-item px-0 py-2 d-flex justify-content-between">
                         <span class="text-muted">Monthly Lease Price</span>
-                        <span class="fw-bold text-success">$@((Model.Shop.Price ?? 0).ToString("N2"))</span>
+                        <span class="fw-bold text-success">$@priceVal.ToString("N2")</span>
                     </li>
                 </ul>
             </div>
@@ -56,18 +95,21 @@
                 <h5 class="bms-card-title"><i class="bi bi-cpu me-2 text-dark"></i> Technical Specs (HVAC/Power)</h5>
             </div>
             <div class="bms-card-body">
-                @if (!Model.Specifications.Any())
+                @if (Model?.Specifications == null || !Model.Specifications.Any())
                 {
-                    <p class="text-muted small mb-0">No electrical or ventilation requirements listed. <a asp-action="Specifications" asp-route-id="@Model.Shop.Id">Add Specs</a></p>
+                    <p class="text-muted small mb-0">No electrical or ventilation requirements listed. <a asp-action="Specifications" asp-route-id="@shopId">Add Specs</a></p>
                 }
                 else
                 {
                     <ul class="list-group list-group-flush">
                         @foreach (var spec in Model.Specifications)
                         {
+                            var title = GetProp(spec, "Title", "Name", "Key", "SpecTitle", "Type")?.ToString() ?? "Specification";
+                            var detail = GetProp(spec, "Detail", "Value", "Description", "SpecDetail")?.ToString() ?? "N/A";
+
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between">
-                                <span class="text-muted">@spec.Title</span>
-                                <span class="fw-semibold text-dark">@spec.Detail</span>
+                                <span class="text-muted">@title</span>
+                                <span class="fw-semibold text-dark">@detail</span>
                             </li>
                         }
                     </ul>
@@ -94,7 +136,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!Model.RentalRequests.Any())
+                            @if (Model?.RentalRequests == null || !Model.RentalRequests.Any())
                             {
                                 <tr><td colspan="4" class="text-center py-4 text-muted">No rental applications submitted for this shop unit yet.</td></tr>
                             }
@@ -102,11 +144,21 @@
                             {
                                 @foreach (var req in Model.RentalRequests)
                                 {
+                                    var userObj = GetProp(req, "User", "Tenant", "Applicant");
+                                    var firstName = GetProp(userObj, "FirstName", "Name")?.ToString();
+                                    var lastName = GetProp(userObj, "LastName")?.ToString();
+                                    var applicantName = !string.IsNullOrEmpty(firstName) ? $"{firstName} {lastName}".Trim() : GetProp(userObj, "FullName", "UserName")?.ToString() ?? "Applicant";
+
+                                    var appDateStr = FormatDate(req, "CreatedDate", "RequestDate", "CreatedOn", "Date");
+                                    var reqStatusObj = GetProp(req, "Status", "RequestStatus");
+                                    var reqStatusName = GetProp(reqStatusObj, "Name", "Title")?.ToString() ?? GetProp(req, "Status")?.ToString() ?? "Pending";
+                                    var reqId = GetProp(req, "Id");
+
                                     <tr>
-                                        <td class="fw-bold">@(req.User?.FullName ?? "Applicant")</td>
-                                        <td>@req.CreatedDate.ToString("MMM dd, yyyy")</td>
-                                        <td><span class="badge bg-light text-dark border">@(req.Status?.Name ?? "Pending")</span></td>
-                                        <td><a asp-controller="RentalRequests" asp-action="Review" asp-route-id="@req.Id" asp-route-type="Shop" class="btn btn-sm btn-outline-primary">Review</a></td>
+                                        <td class="fw-bold">@applicantName</td>
+                                        <td>@appDateStr</td>
+                                        <td><span class="badge bg-light text-dark border">@reqStatusName</span></td>
+                                        <td><a asp-controller="RentalRequests" asp-action="Review" asp-route-id="@reqId" asp-route-type="Shop" class="btn btn-sm btn-outline-primary">Review</a></td>
                                     </tr>
                                 }
                             }
